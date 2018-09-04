@@ -1,0 +1,16 @@
+Best known solutions for symmetric TSPs
+
+bayg29 : 1610
+bays29 : 2020
+brazil58 : 25395
+brg180 : 1950
+dantzig42 : 699
+fri26 : 937
+gr17 : 2085
+gr21 : 2707
+gr24 : 1272
+gr48 : 5046
+gr120 : 6942
+hk48 : 11461
+pa561 : 2763
+swiss42 : 1273
