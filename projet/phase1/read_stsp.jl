@@ -3,17 +3,17 @@ using Plots
 """Analyse un fichier .tsp et renvoie un dictionnaire avec les donnees de l'entete"""
 function read_header(filename::String)
 
-    fichier = open(filename, "r")
+    file = open(filename, "r")
     header = Dict{String}{String}()
     sections = ["NAME", "TYPE", "COMMENT", "DIMENSION", "EDGE_WEIGHT_TYPE", "EDGE_WEIGHT_FORMAT",
     "EDGE_DATA_FORMAT", "NODE_COORD_TYPE", "DISPLAY_DATA_TYPE"]
 
-    # Initialize header.
+    # Initialize header
     for section in sections
         header[section] = "None"
     end
 
-    for line in eachline(fichier)
+    for line in eachline(file)
         line = strip(line)
         data = split(line, ": ")
         if length(data) >= 2
@@ -23,7 +23,7 @@ function read_header(filename::String)
             end
         end
     end
-    close(fichier)
+    close(file)
     return header
 end
 
@@ -41,14 +41,14 @@ function read_nodes(header::Dict{String}{String}, filename::String)
         return nodes
     end
 
-    fichier = open(filename, "r")
+    file = open(filename, "r")
     dim = parse(Int, header["DIMENSION"])
     k = 0
     display_data_section = false
     node_coord_section = false
     flag = false
 
-    for line in eachline(fichier)
+    for line in eachline(file)
         if !flag
             line = strip(line)
             if line == "DISPLAY_DATA_SECTION"
@@ -68,7 +68,7 @@ function read_nodes(header::Dict{String}{String}, filename::String)
             end
         end
     end
-    close(fichier)
+    close(file)
     return nodes
 end
 
@@ -86,7 +86,7 @@ function n_nodes_to_read(format::String, n::Int, dim::Int)
     elseif format in ["LOWER_COL", "UPPER_ROW"]
         return dim-n-1
     else
-        error("Format inconnu - fonction n_nodes_to_read")
+        error("Unknown format - function n_nodes_to_read")
     end
 end
 
@@ -103,7 +103,7 @@ function read_edges(header::Dict{String}{String}, filename::String)
         return edges
     end
 
-    fichier = open(filename, "r")
+    file = open(filename, "r")
     dim = parse(Int, header["DIMENSION"])
     edge_weight_section = false
     k = 0
@@ -112,7 +112,7 @@ function read_edges(header::Dict{String}{String}, filename::String)
     n_to_read = n_nodes_to_read(edge_weight_format, k, dim)
     flag = false
 
-    for line in eachline(fichier)
+    for line in eachline(file)
         line = strip(line)
         if !flag
             if line == "EDGE_WEIGHT_SECTION"
@@ -140,7 +140,7 @@ function read_edges(header::Dict{String}{String}, filename::String)
                         elseif edge_weight_format == "FULL_MATRIX"
                             edge = (k, i)
                         else
-                            warn("Format inconnu - fonction read_edges")
+                            warn("Unknown format - function read_edges")
                         end
                         push!(edges, edge)
                         i += 1
@@ -164,22 +164,23 @@ function read_edges(header::Dict{String}{String}, filename::String)
             end
         end
     end
+    close(file)
     return edges
 end
 
 """Renvoie les noeuds et les aretes du graphe"""
 function read_stsp(filename::String)
-    Base.print("Lecture de l'entete : ")
+    Base.print("Reading of header : ")
     header = read_header(filename)
     println("✓")
     dim = parse(Int, header["DIMENSION"])
     edge_weight_format = header["EDGE_WEIGHT_FORMAT"]
 
-    Base.print("Lecture des noeuds : ")
+    Base.print("Reading of nodes : ")
     graph_nodes = read_nodes(header, filename)
     println("✓")
 
-    Base.print("Lecture des aretes : ")
+    Base.print("Reading of edges : ")
     edges_brut = read_edges(header, filename)
     edges = []
     for k = 1 : dim
@@ -197,7 +198,6 @@ function read_stsp(filename::String)
 
     for k = 1 : dim
         edges[k] = sort(edges[k])
-        #println(k," ",edges[k])
     end
     println("✓")
     return graph_nodes, edges

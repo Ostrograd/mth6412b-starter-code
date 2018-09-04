@@ -41,9 +41,9 @@ nb_nodes(graph::AbstractGraph) = length(graph.nodes)
 function show(graph::Graph)
 	name = name(graph)
 	nb_nodes = nb_nodes(graph)
-	s = string("Graphe ", name, " comprenant ", nb_nodes, " noeuds")
-	for noeud in nodes(graph)
-		s = string(s, "\n", show(noeud))
+	s = string("Graph ", name, " has ", nb_nodes, " nodes")
+	for node in nodes(graph)
+		s = string(s, "\n", show(node))
 	end
 	println(s)
 end
