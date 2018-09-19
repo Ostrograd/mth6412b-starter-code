@@ -39,11 +39,8 @@ nb_nodes(graph::AbstractGraph) = length(graph.nodes)
 
 """Affiche un graphe"""
 function show(graph::Graph)
-	name = name(graph)
-	nb_nodes = nb_nodes(graph)
-	s = string("Graph ", name, " has ", nb_nodes, " nodes")
+	println("Graph ", name(graph), " has ", nb_nodes(graph), " nodes.")
 	for node in nodes(graph)
-		s = string(s, "\n", show(node))
+		show(node)
 	end
-	println(s)
 end
