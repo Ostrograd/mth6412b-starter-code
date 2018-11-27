@@ -15,11 +15,11 @@ function read_header(filename::String)
 
     for line in eachline(file)
         line = strip(line)
-        data = split(line, ": ")
+        data = split(line, ":")
         if length(data) >= 2
-            firstword = data[1]
+            firstword = strip(data[1])
             if firstword in sections
-                header[firstword] = data[2]
+                header[firstword] = strip(data[2])
             end
         end
     end
