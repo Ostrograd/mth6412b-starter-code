@@ -116,7 +116,7 @@ function read_edges(header::Dict{String}{String}, filename::String)
     for line in eachline(file)
         line = strip(line)
         if !flag
-            if line == "EDGE_WEIGHT_SECTION"
+            if occursin(r"^EDGE_WEIGHT_SECTION", line)
                 edge_weight_section = true
                 continue
             end
