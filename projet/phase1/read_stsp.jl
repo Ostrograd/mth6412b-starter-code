@@ -100,6 +100,7 @@ function read_edges(header::Dict{String}{String}, filename::String)
     "UPPER_DIAG_COL", "LOWER_DIAG_COL"]
 
     if !(edge_weight_format in known_edge_weight_formats)
+        @warn "unknown edge weight format" edge_weight_format
         return edges
     end
 
