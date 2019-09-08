@@ -13,8 +13,8 @@ Exemple:
 
 """
 mutable struct Node{T} <: AbstractNode{T}
-    name::String
-    data::T
+  name::String
+  data::T
 end
 
 # on présume que tous les noeuds dérivant d'AbstractNode
@@ -28,5 +28,5 @@ data(node::AbstractNode) = node.data
 
 """Affiche un noeud."""
 function show(node::AbstractNode)
-    println("Node ", name(node), ", data: ", data(node))
+  println("Node ", name(node), ", data: ", data(node))
 end
