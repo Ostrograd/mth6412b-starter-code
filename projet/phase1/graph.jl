@@ -31,11 +31,16 @@ end
 function add_edge!(graph::Graph{Y,T}, edge::Edge{T,Y}) where {Y,T}
   push!(graph.edges, edge)
   
-  if !(edge.node1 in graph.nodes)
+  nodes_names = []
+  for node in graph.nodes
+    push!(nodes_names,node.name)
+  end
+  if !(edge.node1.name in nodes_names)
     add_node!(graph, edge.node1)
+    push!(nodes_names,edge.node1.name)
     @warn "Le noeud",edge.node1.name," n'était pas dans le graphe. Il a été ajouté."
   end
-  if !(edge.node2 in graph.nodes)
+  if !(edge.node2.name in nodes_names)
     add_node!(graph, edge.node2)
     @warn "Le noeud",edge.node2.name," n'était pas dans le graphe. Il a été ajouté."
   end

@@ -13,9 +13,9 @@ Exemple:
 
 """
 mutable struct Edge{T,Y} <: AbstractEdge{T}
-  weight::T
   node1::Node{Y}
   node2::Node{Y}
+  weight::T
 end
 
 # on présume que toutes les arêtes dérivées de AbstractEdge
