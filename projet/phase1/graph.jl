@@ -30,28 +30,28 @@ end
 """Ajoute une arête au graphe"""
 function add_edge!(graph::Graph{Y,T}, edge::Edge{T,Y}) where {Y,T}
   push!(graph.edges, edge)
-  
-  nodes_names = []
-  for node in graph.nodes
-    push!(nodes_names,node.name)
-  end
-  if !(edge.node1.name in nodes_names)
+  if !(edge.node1.name in nodes_names(graph))
     add_node!(graph, edge.node1)
-    push!(nodes_names,edge.node1.name)
     @warn "Le noeud",edge.node1.name," n'était pas dans le graphe. Il a été ajouté."
   end
-  if !(edge.node2.name in nodes_names)
+  if !(edge.node2.name in nodes_names(graph))
     add_node!(graph, edge.node2)
     @warn "Le noeud",edge.node2.name," n'était pas dans le graphe. Il a été ajouté."
   end
-
-
-
   graph
 end
 
 # on présume que tous les graphes dérivant d'AbstractGraph
 # posséderont des champs `name` et `nodes`.
+
+"""Renvoie la liste des noms des noeud du graphe."""
+function nodes_names(graph::AbstractGraph)
+  nodes_names = []
+  for node in graph.nodes
+    push!(nodes_names,node.name)
+  end
+  nodes_names
+end
 
 """Renvoie le nom du graphe."""
 name(graph::AbstractGraph) = graph.name

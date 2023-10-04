@@ -8,7 +8,7 @@ abstract type AbstractEdge{T} end
 
 Exemple:
 
-        edge = Edge(poids, node1, node2)
+        edge = Edge( node1, node2, poids)
         
 
 """
