@@ -23,4 +23,4 @@ function graph_from_tsp(path::String,name::String)
     graphe
 end
 
-graph_from_tsp("instances\\stsp\\swiss42.tsp","graphe1")
+graph_from_tsp("instances\\stsp\\bays29.tsp","graphe1")
