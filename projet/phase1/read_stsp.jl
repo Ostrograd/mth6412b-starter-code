@@ -199,12 +199,8 @@ function read_stsp(filename::String)
   for edge in edges_brut
     if edge_weight_format in ["UPPER_ROW", "LOWER_COL", "UPPER_DIAG_ROW", "LOWER_DIAG_COL"]
       push!(graph_edges[edge[1]], edge[2])
-      
-      println(edge)
     else
       push!(graph_edges[edge[2]], edge[1])
-      
-      println(edge)
     end
   end
 
