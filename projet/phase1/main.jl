@@ -4,39 +4,11 @@ include("edges.jl")
 include("graph.jl")
 include("read_stsp.jl")
 include("comp_connexes.jl")
+include("Kruskal.jl")
 
 ##Code Principal
-"""
-function insertion!(A)
-    n = length(A)
-    for j = 2 : n
-        key = A[j]
-        i = j - 1
-        while i > 0 && A[i] > key
-            A[i+1] = A[i]
-            i = i - 1
-        end
-        A[i+1] = key
-    end
-    A
-end
-"""
-function insertion!(A::Vector{Edge{Float64,Vector{Float64}}})
-    n = length(A)
-    for j = 2 : n
-        key = A[j].weight
-        edge = A[j]
-        i = j - 1
-        while i > 0 && A[i].weight > key
-            A[i+1] = A[i]
-            i = i - 1
-        end
-        A[i+1] = edge
-    end
-    A
-end
 
-
+###### PHASE 1 ######
 function graph_from_tsp(path::String,name::String) 
 
     graphe_nodes, graph_edges, edges_weight_brut = read_stsp(path)
@@ -62,6 +34,7 @@ end
 
 graphe1, graphe1_nodes = graph_from_tsp("instances\\stsp\\bays29.tsp","graphe1")
 
+##### PHASE 2 #####
 graphe_test = Graph("Test",Node{Vector{Float64}}[],Edge{Int,Vector{Float64}}[])
 
 #Nodes 
@@ -104,74 +77,6 @@ for i in edge_list
     add_edge!(graphe_test, i)
 end
 
-#show(graphe_test)
-
-###Kruzkal
-function NodesInSameCConnexe(edge::Edge,CConnexes)
-    node1, node2 = nodes(edge)
-    for C in CConnexes
-        if node1 in C.nodes
-            if node2 in C.nodes
-                return true
-            else return false
-            end
-        end
-    end
-
-end
-
-function Merge_CConnexes!(edge, CConnexes)
-    node1, node2 = nodes(edge)
-    indice1, indice2 = 0, 0
-    print("\n node1 : ",node1)
-    print("\n node2 : ",node2,"\n")
-    for i in 1:length(CConnexes)
-        C = CConnexes[i]
-        
-        
-        if node1 in nodes(C)
-            indice1 = i
-            
-        end
-        if node2 in nodes(C)
-            indice2 = i
-        end
-    end
-
-    if indice1 != 0 && indice2 != 0
-        
-        append!(CConnexes[indice1].nodes, CConnexes[indice2].nodes)
-        append!(CConnexes[indice1].edges, CConnexes[indice2].edges)
-        add_edge!(CConnexes[indice1],edge)
-        deleteat!(CConnexes, indice2)
-
-    end
-
-    return CConnexes
-end
-
-function Kruskal(graphe::Graph)
-    A = insertion!(graphe.edges)
-    print("\n Longueur A : ",length(A))
-    CConnexes_list = []
-    i=1
-    for node in nodes(graphe)
-        push!(CConnexes_list,Comp_Connexe(string(i),Node{Vector{Float64}}[node],Edge{Int,Vector{Float64}}[]))
-    end
-    
-    for edge in A
-        if length(CConnexes_list) == 1
-            break       ##On arrête lorsqu'il reste une seule composante connexe
-        end
-        if (NodesInSameCConnexe(edge,CConnexes_list)) != true
-            
-            CConnexes_list = Merge_CConnexes!(edge,CConnexes_list)
-        end
-    end
-    return CConnexes_list
-end
-
 #CConnexes = Kruskal(graphe_test)
-
 ##Test avec tsp
 CConnexe = Kruskal(graphe1)

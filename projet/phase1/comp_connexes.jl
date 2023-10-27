@@ -10,13 +10,13 @@ mutable struct Comp_Connexe{Y,T} <: AbstractGraph{T}
   edges::Vector{Edge{T,Y}}
 end
 
-"""Ajoute un noeud au graphe."""
+"""Ajoute un noeud à la composante connexe."""
 function add_node!(graph::Comp_Connexe{Y,T}, node::Node{Y}) where {Y,T}
   push!(graph.nodes, node)
   graph
 end
 
-"""Ajoute une arête au graphe"""
+"""Ajoute une arête à la composante connexe"""
 function add_edge!(graph::Comp_Connexe{Y,T}, edge::Edge{T,Y}) where {Y,T}
   push!(graph.edges, edge)
   if !(edge.node1.name in nodes_names(graph))
@@ -32,13 +32,13 @@ end
 
 
 
-"""Affiche un graphe"""
+"""Affiche la composante connexe"""
 function show(graph::Comp_Connexe)
-  println("Graph ", name(graph), " has ", nb_nodes(graph), " nodes.")
+  println("La composante connexe ", name(graph), " a ", nb_nodes(graph), " noeuds.")
   for node in nodes(graph)
     show(node)
   end
-  println("Graph ", name(graph), " has ", nb_edges(graph), " edges.")
+  println("La composante connexe ", name(graph), " a ", nb_edges(graph), " arretes.")
   for edge in edges(graph)
     show(edge)
   end
