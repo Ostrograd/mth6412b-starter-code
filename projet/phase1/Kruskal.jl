@@ -76,5 +76,5 @@ function Kruskal(graphe::Graph)
             CConnexes_list = Merge_CConnexes!(edge,CConnexes_list) ##Réunit les composantes connexes des deux noeuds
         end
     end
-    return CConnexes_list
+    return CConnexes_list[1]
 end

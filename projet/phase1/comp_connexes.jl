@@ -120,6 +120,16 @@ function change_rank!(graph::Tree{T}, rank::Real) where {T}
   graph
 end
 
+"""Trouve la racine de l'arbre"""
+function find_root(tree::Tree{T}) where T
+  #root is the only node without a parent
+  if isnothing(parent(tree))
+      return tree
+  else
+      return find_root(parent(tree))
+  end
+end
+
 # """Ajoute une arête à l'arbre"""
 # function add_edge!(graph::Tree{Y,T}, edge::Edge{T,Y}) where {Y,T}
 #   if !(edge.node1.name in nodes_names(graph))
