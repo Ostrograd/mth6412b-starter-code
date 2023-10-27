@@ -4,20 +4,6 @@ include("graph.jl")
 import Base.show
 
 
-"""Type abstrait dont d'autres types de graphes dériveront."""
-abstract type AbstractGraph{T} end
-
-"""Type representant un graphe comme un ensemble de noeuds.
-
-Exemple :
-
-    node1 = Node("Joe", 3.14)
-    node2 = Node("Steve", exp(1))
-    node3 = Node("Jill", 4.12)
-    G = Graph("Ick", [node1, node2, node3])
-
-Attention, tous les noeuds doivent avoir des données de même type.
-"""
 mutable struct Comp_Connexe{Y,T} <: AbstractGraph{T}
   name::String
   nodes::Vector{Node{Y}}

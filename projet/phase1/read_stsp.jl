@@ -35,14 +35,15 @@ function read_nodes(header::Dict{String}{String}, filename::String)
   nodes = Dict{Int}{Vector{Float64}}()
   node_coord_type = header["NODE_COORD_TYPE"]
   display_data_type = header["DISPLAY_DATA_TYPE"]
-
-
-  if !(node_coord_type in ["TWOD_COORDS", "THREED_COORDS"]) && !(display_data_type in ["COORDS_DISPLAY", "TWOD_DISPLAY"])
-    return nodes
-  end
-
   file = open(filename, "r")
   dim = parse(Int, header["DIMENSION"])
+
+  if !(node_coord_type in ["TWOD_COORDS", "THREED_COORDS"]) && !(display_data_type in ["COORDS_DISPLAY", "TWOD_DISPLAY"])
+    for i in range(1,dim)
+      nodes[i] = [0,0]
+    end
+    return nodes
+  end
   k = 0
   display_data_section = false
   node_coord_section = false
