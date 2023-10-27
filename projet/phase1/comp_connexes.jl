@@ -65,13 +65,16 @@ mutable struct Tree{T} <: AbstractTree{T}
     data::T
     parent:: Union{Nothing, Tree{T}}
     children::Vector{Tree{T}}
-    rank::Int
+    rank::Real
 end
 
 """Crée un arbre"""
 function Tree(name::String, data::T) where {T}
   Tree(name, data, nothing , Vector{Tree{T}}(), 0)
 end
+
+"""renvois les données de l'arbre"""
+data(tree::Tree) = tree.data
 
 """renvoie le nom de l'arbre"""
 name(tree::Tree) = tree.name
@@ -102,12 +105,16 @@ end
 
 """change le parent de l'arbre"""
 function change_parent!(graph::Tree{T}, parent::Tree{T}) where {T}
+  if !isnothing(graph.parent) 
+    remove_child!(graph.parent, graph)
+  end
   graph.parent = parent
+  add_child!(parent, graph)
   graph
 end
 
 """change le rang de l'arbre"""
-function change_rank!(graph::Tree{T}, rank::Int) where {T}
+function change_rank!(graph::Tree{T}, rank::Real) where {T}
   rank = max(0, rank)
   graph.rank = rank
   graph
@@ -134,7 +141,7 @@ end
 ##          Ajouter les hauteurs pour les nodes
 
 """Affiche un arbre"""
-function show(tree::Tree)
+function show(tree::AbstractTree)
   println("Node ", name(tree), " has  rank ", rank(tree))
   nodes_to_visit = copy(children(tree))
   println("listing of children : ")
