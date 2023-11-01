@@ -18,13 +18,17 @@ function graph_from_tsp(path::String,name::String)
         node = Node(string(i),graphe_nodes[i])
         add_node!(graphe,node)
     end
-
-
     for edge in edges_weight_brut      ##Ajout des arêtes et des noeuds un par un
+        
         node1 = graphe.nodes[edge[1]] 
         node2 = graphe.nodes[edge[2]]
-        edge_brut = Edge(node1,node2,edge[3])
-        add_edge!(graphe,edge_brut)
+        #Evite les arêtes qui relient un noeud à lui même
+        if node1 == node2
+            continue
+        else
+            edge_brut = Edge(node1,node2,edge[3])
+            add_edge!(graphe,edge_brut)
+        end
     end
     
     return graphe, graphe_nodes
