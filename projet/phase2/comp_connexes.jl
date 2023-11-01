@@ -1,6 +1,6 @@
-include("node.jl")
-include("edges.jl")
-include("graph.jl")
+include("../phase1/node.jl")
+include("../phase1/edges.jl")
+include("../phase1/graph.jl")
 import Base.show
 
 
@@ -130,37 +130,41 @@ function find_root(tree::Tree{T}) where T
   end
 end
 
-# """Ajoute une arête à l'arbre"""
-# function add_edge!(graph::Tree{Y,T}, edge::Edge{T,Y}) where {Y,T}
-#   if !(edge.node1.name in nodes_names(graph))
-#     add_node!(graph, edge.node1)
-#     @warn "Le noeud",edge.node1.name," n'était pas dans le graphe. Il a été ajouté."
-#   elseif edge.node2.name in nodes_names(graph)
-#     #adding edge will create a circuit, so we don't add it
-#     @warn "L'arête ",edge," n'a pas été ajoutée car elle crée un circuit."
-#     return graph
-#   end
-#   if !(edge.node2.name in nodes_names(graph))
-#     add_node!(graph, edge.node2)
-#     @warn "Le noeud",edge.node2.name," n'était pas dans le graphe. Il a été ajouté."
-#   end
-#   push!(graph.edges, edge)
-#   graph
-# end
-##To do : Vérifier que add_edge! ne crée pas de cycle.
-##          Ajouter les hauteurs pour les nodes
+
 
 """Affiche un arbre"""
 function show(tree::AbstractTree)
-  println("Node ", name(tree), " has  rank ", rank(tree))
+  println("Node ", name(tree), " has  rank ", rank(tree), "and ", length(children(tree)), " children.")
   nodes_to_visit = copy(children(tree))
   println("listing of children : ")
   while length(nodes_to_visit) != 0
     node = popfirst!(nodes_to_visit)
     parent_node = parent(node)
-    println("node_visited:", name(node), " its parent is ", name(parent_node), " its rank is ", rank(node))
+    println("node_visited: ", name(node), "     \n its parent is ", name(parent_node), 
+            "     \n its rank (or distance to parent) is ", rank(node))
     for child in children(node)
       push!(nodes_to_visit, child)
     end
   end
+end
+
+"""Convert un arbre en graphe"""
+function tree_to_graph(tree::Tree{T}) where T
+  graph = Graph(name(tree), Node{T}[], Edge{Float64, T}[])
+  nodes_to_visit = copy(children(tree))
+  while length(nodes_to_visit) != 0
+    current_tree = popfirst!(nodes_to_visit)
+    node = Node(name(current_tree), data(current_tree))
+    parent_tree= parent(current_tree)
+    for child in children(current_tree)
+      push!(nodes_to_visit, child)
+    end
+    if !isnothing(parent_tree)
+      parent_node = Node(name(parent_tree), data(parent_tree))
+      distance = convert(Float64, rank(current_tree))
+      edge = Edge(parent_node, node, distance)
+      add_edge!(graph, edge)
+    end
+  end
+  graph
 end
