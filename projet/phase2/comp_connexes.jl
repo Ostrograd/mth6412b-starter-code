@@ -88,18 +88,22 @@ parent(tree::Tree) = tree.parent
 """renvoie le rang de l'arbre"""
 rank(tree::Tree) = tree.rank
 
-"""Renvoie le parent de l'arbre"""
-root(graph::Tree) = graph.parent
+##J'ai enlevé la méthode root puisqu'on trouve la racine avec la fonction
 
 """Ajoute un noeud à l'arbre."""
 function add_child!(graph::Tree{T}, child::Tree{T}) where {T}
   push!(graph.children, child)
+  child.parent = graph
   graph
 end
 
 """enlever un noeud à l'arbre."""
 function remove_child!(graph::Tree{T}, child::Tree{T}) where {T}
+  if (child in children(graph)) != true
+    error("L'élément ",name(child)," n'est pas un enfant de ",name(graph),". Il ne peut pas être supprimé de la liste des enfants.")
+  end
   deleteat!(graph.children, findfirst(x -> x == child, graph.children))
+  child.parent = nothing
   graph
 end
 
@@ -115,7 +119,7 @@ end
 
 """change le rang de l'arbre"""
 function change_rank!(graph::Tree{T}, rank::Real) where {T}
-  rank = max(0, rank)
+  rank = max(0, rank)  ##Le rang ne peut pas être négatif
   graph.rank = rank
   graph
 end
