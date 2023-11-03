@@ -143,6 +143,7 @@ function show(tree::AbstractTree)
     println("node_visited: ", name(node), "     \n its parent is ", name(parent_node), 
             "     \n its rank (or distance to parent) is ", rank(node))
     for child in children(node)
+      println("child: ", name(child))
       push!(nodes_to_visit, child)
     end
   end

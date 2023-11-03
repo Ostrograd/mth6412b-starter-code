@@ -28,15 +28,19 @@ function add_node!(graph::Graph{Y,T}, node::Node{Y}) where {Y,T}
 end
 
 """Ajoute une arête au graphe"""
-function add_edge!(graph::Graph{Y,T}, edge::Edge{T,Y}) where {Y,T}
+function add_edge!(graph::Graph{Y,T}, edge::Edge{T,Y}; safe = true) where {Y,T}
   push!(graph.edges, edge)
   if !(edge.node1.name in nodes_names(graph))
     add_node!(graph, edge.node1)
-    @warn "Le noeud",edge.node1.name," n'était pas dans le graphe. Il a été ajouté."
+    if safe
+      @warn "Le noeud",edge.node1.name," n'était pas dans le graphe. Il a été ajouté."
+    end
   end
   if !(edge.node2.name in nodes_names(graph))
     add_node!(graph, edge.node2)
-    @warn "Le noeud",edge.node2.name," n'était pas dans le graphe. Il a été ajouté."
+    if safe
+      @warn "Le noeud",edge.node2.name," n'était pas dans le graphe. Il a été ajouté."
+    end
   end
   graph
 end
