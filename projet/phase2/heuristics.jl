@@ -22,7 +22,7 @@ function rank_union!(tree_1::Tree{T}, tree_2::Tree{T}) where T
       change_rank!(root_1, rank(root_1) + 1)
       return root_1
     elseif rank(root_1) > rank(root_2)
-      change_parent!(root_2, root_21)
+      change_parent!(root_2, root_1)
       return root_1
     else
       change_parent!(root_1, root_2)
@@ -31,7 +31,7 @@ function rank_union!(tree_1::Tree{T}, tree_2::Tree{T}) where T
 end
 
 """Implementation du deuxieme heuristic. La function modifie l'arbre et ses predesseceurs en place"""
-function path_compression!(tree::Tree{T})
+function path_compression!(tree::Tree)
     #la racine est le seul noeud sans parent
     if isnothing(parent(tree))
         return tree
