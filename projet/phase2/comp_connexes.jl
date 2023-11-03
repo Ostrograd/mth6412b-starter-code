@@ -138,17 +138,19 @@ end
 
 """Affiche un arbre"""
 function show(tree::AbstractTree)
-  println("Node ", name(tree), " has  rank ", rank(tree), "and ", length(children(tree)), " children.")
+  println("Node ", name(tree), " has  rank ", rank(tree), " and ", length(children(tree)), " children.")
   nodes_to_visit = copy(children(tree))
-  println("listing of children : ")
   while length(nodes_to_visit) != 0
     node = popfirst!(nodes_to_visit)
     parent_node = parent(node)
     println("node_visited: ", name(node), "     \n its parent is ", name(parent_node), 
-            "     \n its rank (or distance to parent) is ", rank(node))
-    for child in children(node)
-      println("child: ", name(child))
-      push!(nodes_to_visit, child)
+            "     \n its rank is ", rank(node))
+    if length(children(node)) != 0
+      println("   its children are: ")
+      for child in children(node)
+        println("     ", name(child))
+        push!(nodes_to_visit, child)
+      end
     end
   end
 end
