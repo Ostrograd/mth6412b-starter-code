@@ -5,6 +5,7 @@ include("../phase1/read_stsp.jl")
 include("Kruskal.jl")
 include("comp_connexes.jl")
 include("heuristics.jl")
+include("prims_algorithm.jl")
 using(Test)
 
 
@@ -60,12 +61,8 @@ add_child!(tree1,tree2)
 @test length(children(tree1)) == 1
 add_child!(tree2,tree3)
 
-e = try 
-    remove_child!(tree1,tree3)
-catch e
-return e
-end 
-@test e isa Exception
+
+@test_throws Exception remove_child!(tree1,tree3)
 @test parent(tree3) == tree2
 
 remove_child!(tree1,tree2)
@@ -75,3 +72,44 @@ change_rank!(tree1,-5)
 @test rank(tree1) == 0
 racine = find_root(tree3)
 @test racine == tree2 
+
+
+#Testing prims_algorithm.jl
+graphe_test = Graph("Test",Node{Vector{Float64}}[],Edge{Int,Vector{Float64}}[])
+#Nodes 
+nodea = Node("a",[0.])
+nodeb = Node("b",[0.])
+nodec = Node("c",[0.])
+noded = Node("d",[0.])
+edge1 = Edge(nodea,nodeb, 1)
+edge2 = Edge(nodea,noded, 6)
+edge3 = Edge(nodea, nodec, 3)
+edge4 = Edge(nodec, noded, 5)
+edge5 = Edge(nodec, nodeb, 10)
+edge6 = Edge(nodeb, noded, 2)
+edge_list = [edge1, edge2, edge3, edge4, edge5, edge6]
+#Add the nodes and edges to the graph
+for i in edge_list
+    add_edge!(graphe_test, i, safe=false)
+end
+#Test the priority queue
+#C should have a priority of 0
+priority_queue = prims_priority_queue(graphe_test, "c")
+for item in priority_queue.items
+    if name(data(item)) == "c"
+        @test priority(item) == 0
+    else
+        @test priority(item) == Inf
+    end
+end
+#Test the adjacency list
+adj_dict = adjacency_dict(graphe_test, priority_queue)
+#A and B should be one away from one another
+@test adj_dict[priority_queue.items[1]][priority_queue.items[2]] == 1
+#testing Prim's 
+p_tree = prims_algorithm(graphe_test, start_node_name="c")
+@test name(p_tree) == "c"
+#C should only have 1 child
+@test length(children(p_tree)) == 1
+@test sum_of_weights(tree_to_graph(p_tree)) == 6
+

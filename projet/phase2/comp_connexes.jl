@@ -100,7 +100,7 @@ end
 """enlever un noeud à l'arbre."""
 function remove_child!(graph::Tree{T}, child::Tree{T}) where {T}
   if (child in children(graph)) != true
-    error("L'élément ",name(child)," n'est pas un enfant de ",name(graph),". Il ne peut pas être supprimé de la liste des enfants.")
+    throw(ValueError("L'élément ",name(child)," n'est pas un enfant de ",name(graph),". Il ne peut pas être supprimé de la liste des enfants."))
   end
   deleteat!(graph.children, findfirst(x -> x == child, graph.children))
   child.parent = nothing
@@ -174,4 +174,13 @@ function tree_to_graph(tree::Tree{T}) where T
     end
   end
   graph
+end
+
+#affiche la somme des poids des arretes d'un graphe
+function sum_of_weights(graph::AbstractGraph{T}) where T
+  sum = 0
+  for edge in edges(graph)
+      sum += weight(edge)
+  end
+  return sum
 end
