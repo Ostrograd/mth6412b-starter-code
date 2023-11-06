@@ -58,123 +58,202 @@ end
 
 ######################### Arbre : #############################
 
+mutable struct TreeNode{T} <: AbstractNode{T}
+  name::String
+  data::T
+  parent::Union{Int, Nothing}
+  children::Vector{Int}
+  rank :: Real
+  index::Int
+end
+
+
 abstract type AbstractTree{T} end
 
 mutable struct Tree{T} <: AbstractTree{T}
     name::String
-    data::T
-    parent:: Union{Nothing, Tree{T}}
-    children::Vector{Tree{T}}
-    rank::Real
+    nodes::Vector{TreeNode{T}}
 end
 
-"""Crée un arbre"""
-function Tree(name::String, data::T) where {T}
-  Tree(name, data, nothing , Vector{Tree{T}}(), 0)
+
+"""Crée un noeud"""
+function TreeNode(name::String, data::T) where {T}
+  TreeNode(name, data, nothing , Vector{Int}(), 0, 0)
 end
 
-"""renvois les données de l'arbre"""
-data(tree::Tree) = tree.data
 
-"""renvoie le nom de l'arbre"""
-name(tree::Tree) = tree.name
 
-"""renvoie les enfants de l'arbre"""
-children(tree::Tree) = tree.children
 
-"""renvoie le parent de l'arbre"""
-parent(tree::Tree) = tree.parent
-
-"""renvoie le rang de l'arbre"""
-rank(tree::Tree) = tree.rank
-
-##J'ai enlevé la méthode root puisqu'on trouve la racine avec la fonction
-
-"""Ajoute un noeud à l'arbre."""
-function add_child!(graph::Tree{T}, child::Tree{T}) where {T}
-  push!(graph.children, child)
-  child.parent = graph
-  graph
-end
-
-"""enlever un noeud à l'arbre."""
-function remove_child!(graph::Tree{T}, child::Tree{T}) where {T}
-  if (child in children(graph)) != true
-    throw(ValueError("L'élément ",name(child)," n'est pas un enfant de ",name(graph),". Il ne peut pas être supprimé de la liste des enfants."))
+"""Ajoute un noeud à l'arbre"""
+function add_node!(tree::Tree{T}, node::TreeNode{T}; parent::Union{TreeNode{T}, Nothing}=nothing) where {T}
+  change_index!(node, length(tree.nodes)+1)
+  if !isnothing(parent)
+    add_child!(parent, node)
+    node.parent = index(parent)
   end
-  deleteat!(graph.children, findfirst(x -> x == child, graph.children))
+  push!(tree.nodes, node)
+  tree
+end
+
+"""renvoie les noeuds de l'arbre"""
+nodes(tree::Tree) = tree.nodes
+
+
+"""renvoie les indices les enfants du noeud"""
+children_loc(node::TreeNode) = node.children
+
+"""renvoie les enfants du noeud"""
+function children(tree::Tree, node::TreeNode)
+  children = Vector{TreeNode}()
+  for child in children_loc(node)
+    push!(children, tree.nodes[child])
+  end
+  return children
+end
+
+"""renvoie l'indice du noeud"""
+index(node::TreeNode) = node.index
+
+"""change l'indice du noeud"""
+function change_index!(node::TreeNode, index::Int)
+  node.index = index
+  node
+end
+
+"""renvoie  le l'indice du parent du noeud"""
+parent_loc(node::TreeNode) = node.parent
+
+parent(tree::Tree, node::TreeNode) = tree.nodes[parent_loc(node)]
+
+"""renvoie le parent du"""
+function parent(tree::Tree, node::TreeNode)
+  if isnothing(parent_loc(node))
+    return nothing
+  else
+    return tree.nodes[parent_loc(node)]
+  end
+end
+
+"""renvoie le rang du noeud"""
+rank(node::TreeNode) = node.rank
+
+"""Montre le noeud"""
+function show(tree:: Tree, node::TreeNode)
+  println("Node ", name(node), " has  rank ", rank(node), " and ", length(children_loc(node)), " children.")
+  if isnothing(parent(tree, node))
+    println("It has no parent.")
+  else
+    println("Its parent is ", name(parent(tree, node)))
+  end
+  if length(children_loc(node)) == 0
+    println("It has no children.")
+  else
+  println("Its children are: ")
+  for child in children(tree, node)
+    println("     ", name(child))
+  end
+end
+end
+
+"""Define un noeud comme enfant du noeud."""
+function add_child!(parent::TreeNode, child::TreeNode)
+  push!(parent.children, index(child))
+  child.parent = index(parent)
+  parent
+end
+
+"""enlever un efant d'un noeud."""
+function remove_child!(parent::TreeNode, child::TreeNode) 
+  if (index(child) in children_loc(parent)) != true
+    throw(ValueError("L'élément ",name(child)," n'est pas un enfant de ",name(parent),". Il ne peut pas être supprimé de la liste des enfants."))
+  end
+  deleteat!(parent.children, findfirst(x -> x == index(child), parent.children))
   child.parent = nothing
-  graph
+  parent
 end
 
-"""change le parent de l'arbre"""
-function change_parent!(graph::Tree{T}, parent::Tree{T}) where {T}
-  if !isnothing(graph.parent) 
-    remove_child!(graph.parent, graph)
+"""change le parent d'un enfant"""
+function change_parent!(tree::Tree, child::TreeNode, parent_node::TreeNode) 
+  #Enleve l'enfant de son ancien parent
+  if !isnothing(child.parent) 
+    remove_child!(parent(tree, child), child)
   end
-  graph.parent = parent
-  add_child!(parent, graph)
-  graph
+  #Define l'indice du parent
+  child.parent = index(parent_node)
+  add_child!(parent_node, child)
+  child
 end
 
-"""change le rang de l'arbre"""
-function change_rank!(graph::Tree{T}, rank::Real) where {T}
+"""change le rang du noeud"""
+function change_rank!(node::TreeNode, rank::Real) 
   rank = max(0, rank)  ##Le rang ne peut pas être négatif
-  graph.rank = rank
-  graph
+  node.rank = rank
+  node
 end
 
 """Trouve la racine de l'arbre"""
-function find_root(tree::Tree{T}) where T
+function find_root(tree::Tree, node::TreeNode) 
   #root is the only node without a parent
-  if isnothing(parent(tree))
-      return tree
+  if isnothing(parent(tree, node))
+      return node
   else
-      return find_root(parent(tree))
+      return find_root(parent(tree, node))
   end
 end
 
+"""Trouve la racine de l'arbre. Cette fonction marche seulement si l'arbre est connexe"""
+function find_root(tree::Tree) 
+  return find_root(tree, tree.nodes[1])
+end
 
+
+
+# """Affiche un arbre"""
+# function show(tree::AbstractTree)
+#   println("Node ", name(tree), " has  rank ", rank(tree), " and ", length(children(tree)), " children.")
+#   nodes_to_visit = copy(children(tree))
+#   while length(nodes_to_visit) != 0
+#     node = popfirst!(nodes_to_visit)
+#     parent_node = parent(node)
+#     println("node_visited: ", name(node), "     \n its parent is ", name(parent_node), 
+#             "     \n its rank is ", rank(node))
+#     if length(children(node)) != 0
+#       println("   its children are: ")
+#       for child in children(node)
+#         println("     ", name(child))
+#         push!(nodes_to_visit, child)
+#       end
+#     end
+#   end
+# end
 
 """Affiche un arbre"""
 function show(tree::AbstractTree)
-  println("Node ", name(tree), " has  rank ", rank(tree), " and ", length(children(tree)), " children.")
-  nodes_to_visit = copy(children(tree))
-  while length(nodes_to_visit) != 0
-    node = popfirst!(nodes_to_visit)
-    parent_node = parent(node)
-    println("node_visited: ", name(node), "     \n its parent is ", name(parent_node), 
-            "     \n its rank is ", rank(node))
-    if length(children(node)) != 0
-      println("   its children are: ")
-      for child in children(node)
-        println("     ", name(child))
-        push!(nodes_to_visit, child)
-      end
-    end
+  for node in nodes(tree)
+    show(tree, node)
   end
 end
 
-"""Convert un arbre en graphe"""
-function tree_to_graph(tree::Tree{T}) where T
-  graph = Graph(name(tree), Node{T}[], Edge{Float64, T}[])
-  nodes_to_visit = copy(children(tree))
-  while length(nodes_to_visit) != 0
-    current_tree = popfirst!(nodes_to_visit)
-    node = Node(name(current_tree), data(current_tree))
-    parent_tree= parent(current_tree)
-    for child in children(current_tree)
-      push!(nodes_to_visit, child)
-    end
-    if !isnothing(parent_tree)
-      parent_node = Node(name(parent_tree), data(parent_tree))
-      distance = convert(Float64, rank(current_tree))
-      edge = Edge(parent_node, node, distance)
-      add_edge!(graph, edge)
-    end
-  end
-  graph
-end
+# """Convert un arbre en graphe"""
+# function tree_to_graph(tree::Tree{T}) where T
+#   graph = Graph(name(tree), Node{T}[], Edge{Float64, T}[])
+#   nodes_to_visit = copy(children(tree))
+#   while length(nodes_to_visit) != 0
+#     current_tree = popfirst!(nodes_to_visit)
+#     node = Node(name(current_tree), data(current_tree))
+#     parent_tree= parent(current_tree)
+#     for child in children(current_tree)
+#       push!(nodes_to_visit, child)
+#     end
+#     if !isnothing(parent_tree)
+#       parent_node = Node(name(parent_tree), data(parent_tree))
+#       distance = convert(Float64, rank(current_tree))
+#       edge = Edge(parent_node, node, distance)
+#       add_edge!(graph, edge)
+#     end
+#   end
+#   graph
+# end
 
 #affiche la somme des poids des arretes d'un graphe
 function sum_of_weights(graph::AbstractGraph{T}) where T
