@@ -22,7 +22,7 @@ end
 
 
 """ Vérifie si les deux noeud d'une arête donnée sont dans la même composante connexe """
-function NodesInSameCConnexe(edge::Edge,CConnexes)
+function nodes_in_same_cconnexe(edge::Edge,CConnexes)
     node1, node2 = nodes(edge)
     for C in CConnexes
         if node1 in C.nodes
@@ -36,7 +36,7 @@ function NodesInSameCConnexe(edge::Edge,CConnexes)
 end
 
 """ Prend une arête [s_i,s_j] et la liste des composantes connexes en input et réunit les composantes connexes de s_i et s_j  """
-function Merge_CConnexes!(edge, CConnexes)
+function merge_cconnexes!(edge, CConnexes)
     node1, node2 = nodes(edge)
     indice1, indice2 = 0, 0
     for i in eachindex(CConnexes)
@@ -60,7 +60,7 @@ function Merge_CConnexes!(edge, CConnexes)
 end
 
 """ Construit l'arbre de recouvrement minimum avec l'algorithme de Kruskal"""
-function Kruskal(graphe::Graph)
+function kruskal(graphe::Graph)
     A = insertion!(graphe.edges)   ##Tri les arêtes selon leur poids
     CConnexes_list = []
     i=1
@@ -72,7 +72,7 @@ function Kruskal(graphe::Graph)
         if length(CConnexes_list) == 1
             break       ##On arrête lorsqu'il reste une seule composante connexe
         end
-        if (NodesInSameCConnexe(edge,CConnexes_list)) != true    
+        if (nodes_in_same_cconnexe(edge,CConnexes_list)) != true    
             CConnexes_list = Merge_CConnexes!(edge,CConnexes_list) ##Réunit les composantes connexes des deux noeuds
         end
     end
