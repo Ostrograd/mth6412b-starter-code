@@ -123,7 +123,7 @@ end
 """renvoie  le l'indice du parent du noeud"""
 parent_loc(node::TreeNode) = node.parent
 
-parent(tree::Tree, node::TreeNode) = tree.nodes[parent_loc(node)]
+#parent(tree::Tree, node::TreeNode) = tree.nodes[parent_loc(node)]
 
 """renvoie le parent du"""
 function parent(tree::Tree, node::TreeNode)
@@ -197,7 +197,7 @@ function find_root(tree::Tree, node::TreeNode)
   if isnothing(parent(tree, node))
       return node
   else
-      return find_root(parent(tree, node))
+      return find_root(tree, parent(tree, node))
   end
 end
 
