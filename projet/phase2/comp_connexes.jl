@@ -75,6 +75,8 @@ mutable struct Tree{T} <: AbstractTree{T}
     nodes::Vector{TreeNode{T}}
 end
 
+"""renvoie le nom de l'arbre"""
+name(tree::Tree) = tree.name
 
 """Crée un noeud"""
 function TreeNode(name::String, data::T) where {T}
@@ -234,26 +236,26 @@ function show(tree::AbstractTree)
   end
 end
 
-# """Convert un arbre en graphe"""
-# function tree_to_graph(tree::Tree{T}) where T
-#   graph = Graph(name(tree), Node{T}[], Edge{Float64, T}[])
-#   nodes_to_visit = copy(children(tree))
-#   while length(nodes_to_visit) != 0
-#     current_tree = popfirst!(nodes_to_visit)
-#     node = Node(name(current_tree), data(current_tree))
-#     parent_tree= parent(current_tree)
-#     for child in children(current_tree)
-#       push!(nodes_to_visit, child)
-#     end
-#     if !isnothing(parent_tree)
-#       parent_node = Node(name(parent_tree), data(parent_tree))
-#       distance = convert(Float64, rank(current_tree))
-#       edge = Edge(parent_node, node, distance)
-#       add_edge!(graph, edge)
-#     end
-#   end
-#   graph
-# end
+"""Convert un arbre en graphe"""
+function tree_to_graph( tree::Tree{T}, root::TreeNode{T}) where T
+  graph = Graph(name(tree), Node{T}[], Edge{Float64, T}[])
+  nodes_to_visit = copy(children(tree, root))
+  while length(nodes_to_visit) != 0
+    current_tree = popfirst!(nodes_to_visit)
+    node = Node(name(current_tree), data(current_tree))
+    parent_tree= parent(tree, current_tree)
+    for child in children(tree, current_tree)
+      push!(nodes_to_visit, child)
+    end
+    if !isnothing(parent_tree)
+      parent_node = Node(name(parent_tree), data(parent_tree))
+      distance = convert(Float64, rank(current_tree))
+      edge = Edge(parent_node, node, distance)
+      add_edge!(graph, edge)
+    end
+  end
+  graph
+end
 
 #affiche la somme des poids des arretes d'un graphe
 function sum_of_weights(graph::AbstractGraph{T}) where T
