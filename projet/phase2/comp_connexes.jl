@@ -251,7 +251,7 @@ function tree_to_graph( tree::Tree{T}, root::TreeNode{T}) where T
       parent_node = Node(name(parent_tree), data(parent_tree))
       distance = convert(Float64, rank(current_tree))
       edge = Edge(parent_node, node, distance)
-      add_edge!(graph, edge)
+      add_edge!(graph, edge, safe=false)
     end
   end
   graph
