@@ -11,7 +11,7 @@ function graph_from_tsp(path::String,name::String)
 
     graphe_nodes, graph_edges, edges_weight_brut = read_stsp(path)
 
-    graphe = Graph(name,Node{Vector{Float64}}[],Edge{Int,Vector{Float64}}[])  #Création d'un graphe vide
+    graphe = Graph(name,Node{Vector{Float64}}[],Edge{Float64,Vector{Float64}}[])  #Création d'un graphe vide
 
 
     for i in range(1,length(graphe_nodes))
