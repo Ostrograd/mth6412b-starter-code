@@ -48,7 +48,7 @@ priority(p::PriorityItem) = p.priority
 
 """change la priorité de un élément de la file de priorité."""
 function priority!(p::PriorityItem, priority::Real) 
-    p.priority = max(0, priority)
+    p.priority = priority
     p
 
 end

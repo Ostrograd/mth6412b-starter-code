@@ -11,13 +11,13 @@ function adjacency_dict( graph::Graph)
     #Chaque noeud est une clef du dictionaire de adjacence
     for (i, node) in enumerate(nodes(graph))
         adj_dict[i] = Dict()
-        correspondance_dict[node] = i
+        correspondance_dict[name(node)] = i
     end
     #Ajoute les voisins de chaque noeud dans le dictionaire de adjacence
     for edge in edges(graph)
         node1, node2 = nodes(edge)
-        idx1 = correspondance_dict[node1]
-        idx2 = correspondance_dict[node2]
+        idx1 = correspondance_dict[name(node1)]
+        idx2 = correspondance_dict[name(node2)]
         adj_dict[idx1][idx2] = weight(edge)
         adj_dict[idx2][idx1] = weight(edge)
     end

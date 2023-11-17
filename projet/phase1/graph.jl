@@ -27,9 +27,53 @@ function add_node!(graph::Graph{Y,T}, node::Node{Y}) where {Y,T}
   graph
 end
 
+"""Ajoute un noeud au graphe au index i."""
+function add_node!(graph::Graph{Y,T}, node::Node{Y}, i::Int) where {Y,T}
+  insert!(graph.nodes, i, node)
+  graph
+end
+
+"""Enlever un noeud au graphe."""
+function remove_node!(graph::Graph{Y,T}, node::Node{Y}) where {Y,T}
+   index = findfirst(x -> x.name == node.name, graph.nodes)
+  deleteat!(graph.nodes, index)
+  return index
+end
+
+"""Donne l'index du noeud dans le graphe."""
+function index_node(graph::Graph{Y,T}, node::Node{Y}) where {Y,T}
+  index = findfirst(x -> x.name == node.name, graph.nodes)
+  return index
+end
+
+"""Enlever tous les arretes qui contiennent un noeud."""
+function remove_edges!(graph::Graph{Y,T}, node::Node{Y}) where {Y,T}
+  graph.edges = filter(x -> x.node1.name != node.name && x.node2.name != node.name, graph.edges)
+  graph
+end
+
 """Ajoute une arête au graphe"""
 function add_edge!(graph::Graph{Y,T}, edge::Edge{T,Y}; safe = true) where {Y,T}
   push!(graph.edges, edge)
+  if !(edge.node1.name in nodes_names(graph))
+    add_node!(graph, edge.node1)
+    if safe
+      @warn "Le noeud",edge.node1.name," n'était pas dans le graphe. Il a été ajouté."
+    end
+  end
+  if !(edge.node2.name in nodes_names(graph))
+    add_node!(graph, edge.node2)
+    if safe
+      @warn "Le noeud",edge.node2.name," n'était pas dans le graphe. Il a été ajouté."
+    end
+  end
+  graph
+end
+
+"""Adds an edge to the graph, and changes the weight of the edge if it does not match the graphs edge"""
+function add_edge!(graph::Graph{Y,T}, edge::Edge{X,Y}; safe = true) where {X, Y,T}
+  new_edge = Edge(edge.node1, edge.node2, T(edge.weight))
+  push!(graph.edges, new_edge)
   if !(edge.node1.name in nodes_names(graph))
     add_node!(graph, edge.node1)
     if safe

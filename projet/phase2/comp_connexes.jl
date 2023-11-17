@@ -236,26 +236,39 @@ function show(tree::AbstractTree)
   end
 end
 
-"""Convert un arbre en graphe"""
-function tree_to_graph( tree::Tree{T}, root::TreeNode{T}) where T
+ """Convert un arbre en graphe"""
+ function tree_to_graph(tree::Tree{T}, root::TreeNode{T}) where T
   graph = Graph(name(tree), Node{T}[], Edge{Float64, T}[])
-  nodes_to_visit = copy(children(tree, root))
-  while length(nodes_to_visit) != 0
-    current_tree = popfirst!(nodes_to_visit)
-    node = Node(name(current_tree), data(current_tree))
-    parent_tree= parent(tree, current_tree)
-    for child in children(tree, current_tree)
-      push!(nodes_to_visit, child)
-    end
-    if !isnothing(parent_tree)
-      parent_node = Node(name(parent_tree), data(parent_tree))
-      distance = convert(Float64, rank(current_tree))
-      edge = Edge(parent_node, node, distance)
-      add_edge!(graph, edge, safe=false)
-    end
+  for tree_node in nodes(tree)
+      add_node!(graph, Node(name(tree_node), data(tree_node)))
   end
-  graph
+  for (i, tree_node) in enumerate(nodes(tree))
+      if name(tree_node) != name(root)
+          par = parent_loc(tree_node)
+          add_edge!(graph, Edge(nodes(graph)[par], nodes(graph)[i], rank(tree_node)))
+      end
+  end
+  return graph
 end
+# function tree_to_graph( tree::Tree{T}, root::TreeNode{T}) where T
+#   graph = Graph(name(tree), Node{T}[], Edge{Float64, T}[])
+#   nodes_to_visit = copy(children(tree, root))
+#   while length(nodes_to_visit) != 0
+#     current_tree = popfirst!(nodes_to_visit)
+#     node = Node(name(current_tree), data(current_tree))
+#     parent_tree= parent(tree, current_tree)
+#     for child in children(tree, current_tree)
+#       push!(nodes_to_visit, child)
+#     end
+#     if !isnothing(parent_tree)
+#       parent_node = Node(name(parent_tree), data(parent_tree))
+#       distance = convert(Float64, rank(current_tree))
+#       edge = Edge(parent_node, node, distance)
+#       add_edge!(graph, edge, safe=false)
+#     end
+#   end
+#   graph
+# end
 
 #affiche la somme des poids des arretes d'un graphe
 function sum_of_weights(graph::AbstractGraph{T}) where T

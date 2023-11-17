@@ -27,7 +27,11 @@ weight(edge::AbstractEdge) = edge.weight
 """Renvoie les deux noeuds de l'arête"""
 nodes(edge::AbstractEdge) = edge.node1, edge.node2
 
-
+"""Change le poids de l'arête."""
+function set_weight!(edge::AbstractEdge, new_weight)
+  edge.weight = new_weight
+  edge
+end
 
 """Affiche un noeud."""
 function show(edge::AbstractEdge)
