@@ -105,6 +105,7 @@ end
 function kruskal(graphe::Graph)
     edges_list = insertion!(graphe.edges)   ##Tri les arêtes selon leur poids
     kruskal_graph = Graph("Kruskal",nodes(graphe),Edge{Int,Vector{Float64}}[])
+    #arbre_min = Tree{Int}("Arbre min", Vector{TreeNode}[])
 
     treenodes_list = Vector{TreeNode}()
     treenodes_names = []
@@ -112,7 +113,7 @@ function kruskal(graphe::Graph)
     for node in nodes(graphe)
         push!(treenodes_list, TreeNode(name(node), 0, nothing , Vector{Int}(), 0, i))
         push!(treenodes_names, name(node))
-        
+        #add_node!(arbre_min, TreeNode(name(node), 0, nothing , Vector{Int}(), 0, i))
         i+=1
     end
     print(treenodes_names)
