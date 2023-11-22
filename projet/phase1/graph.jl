@@ -128,3 +128,30 @@ function show(graph::Graph)
     show(edge)
   end
 end
+
+
+function nodes_dictionnary(graph::Graph)
+    nodes_dict = Dict()
+  for node in nodes(graph)
+    nodes_dict[parse(Int,name(node))] = data(node)
+  end
+  return nodes_dict
+end
+
+function adjacency_list(graph::Graph)
+  liste = []
+  for k = 1 : length(nodes(graph))
+    edge_list = Int[]
+    push!(liste, edge_list)
+  end
+  for edge in graph.edges
+    node1, node2 = nodes(edge)
+    index1 = index_node(graph, node1)
+    index2 = index_node(graph, node2)
+
+    push!(liste[index1], index2)
+    push!(liste[index2], index1)
+  end
+  return liste
+end
+

@@ -245,3 +245,12 @@ function plot_graph(filename::String)
   graph_nodes, graph_edges, _ = read_stsp(filename)
   plot_graph(graph_nodes, graph_edges)
 end
+
+"""Affiche un graphe"""
+function plot_graph(graph::Graph)
+  node_list = nodes_dictionnary(graph)
+  edge_list = adjacency_list(graph)
+
+  plot_graph(node_list, edge_list)
+
+end
