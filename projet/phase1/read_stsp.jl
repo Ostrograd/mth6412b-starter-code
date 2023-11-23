@@ -238,7 +238,15 @@ function plot_graph(nodes, edges)
   xys = values(nodes)
   x = [xy[1] for xy in xys]
   y = [xy[2] for xy in xys]
-  scatter!(x, y)
+  println("Here are the nodes", keys(nodes))
+  label = keys(nodes)
+  println("Here is the lable", label)
+  scatter!(x, y,  markersize=5, color=:black)
+  x_prime = [xy[1]+0.01 for xy in xys]
+  y_prime = [xy[2]+0.01 for xy in xys]
+  fig
+  annotate!.(x_prime, y_prime, text.(label, :red, :left,11))
+  #scatter!(x, y)
 
   fig
 end
@@ -253,15 +261,7 @@ end
 """Affiche un graphe"""
 function plot_graph(graph::Graph)
   node_list = nodes_dictionnary(graph)
-  for node in keys(node_list)
-    println(node)
-    println(node_list[node])
-  end
   edge_list = adjacency_list(graph)
-  for edge in edge_list
-    println(edge)
-  end
-
   fig = plot_graph(node_list, edge_list)
   fig
 end

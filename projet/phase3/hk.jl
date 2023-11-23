@@ -115,15 +115,7 @@ function find_one_tree(graph::Graph, departure_node::Node; edge_selector::String
     return one_tree_distance, one_tree_graph
 end
 
-#Returns the degrees of nodes in  a graph
-function degree(graph::Graph)
-    adjacency_list = adjacency_dict(graph)
-    degrees = []
-    for i in 1:length(nodes(graph))
-        push!(degrees, length(keys(adjacency_list[i])))
-    end
-    return degrees
-end
+
 
 function update_edge_weights!(graph::Graph, pis::Vector{Float64})
     correspondance_dict = Dict()

@@ -8,6 +8,7 @@ include("../phase1/main.jl")
 include("../phase2/queue.jl")
 include("../phase2/heuristics.jl")
 include("../phase2/Kruskal.jl")
+include
 
 """ Parcours un arbre en préordre et retourne la liste des noeuds dans l'ordre dans lequel ils ont été visités."""
 function parcours_preordre(tree, racine)
@@ -79,6 +80,7 @@ bays_29 = graph_from_tsp("instances/stsp/bays29.tsp","graphe")[1]
 
 cycle = rsl(bays_29, nodes(bays_29)[1], "Prims")
 
+println("here are the degrees", degree(cycle))
 #cycle = rsl(graphe, nodes(graphe)[1], "Prims")
 
 show(cycle)

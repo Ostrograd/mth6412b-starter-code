@@ -130,6 +130,15 @@ function show(graph::Graph)
   end
 end
 
+#Returns the degrees of nodes in  a graph
+function degree(graph::Graph)
+  adjacency_list = adjacency_dict(graph)
+  degrees = []
+  for i in 1:length(nodes(graph))
+      push!(degrees, length(keys(adjacency_list[i])))
+  end
+  return degrees
+end
 
 function nodes_dictionnary(graph::Graph)
     nodes_dict = Dict()
