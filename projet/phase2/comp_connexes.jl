@@ -63,6 +63,7 @@ mutable struct TreeNode{T} <: AbstractNode{T}
   data::T
   parent::Union{Int, Nothing}
   children::Vector{Int}
+  dist::Real
   rank :: Real
   index::Int
 end
@@ -80,10 +81,18 @@ name(tree::Tree) = tree.name
 
 """Crée un noeud"""
 function TreeNode(name::String, data::T) where {T}
-  TreeNode(name, data, nothing , Vector{Int}(), 0, 0)
+  TreeNode(name, data, nothing , Vector{Int}(),0, 0, 0)
 end
 
 
+"""change le distance du noeud"""
+function change_dist!(node::TreeNode, dist::Real) 
+  node.dist = dist
+  node
+end
+
+"""renvoie la distance du noeud"""
+dist(node::TreeNode) = node.dist
 
 
 """Ajoute un noeud à l'arbre"""
@@ -226,7 +235,7 @@ end
   for (i, tree_node) in enumerate(nodes(tree))
       if name(tree_node) != name(root)
           par = parent_loc(tree_node)
-          add_edge!(graph, Edge(nodes(graph)[par], nodes(graph)[i], rank(tree_node)))
+          add_edge!(graph, Edge(nodes(graph)[par], nodes(graph)[i], dist(tree_node)))
       end
   end
   return graph

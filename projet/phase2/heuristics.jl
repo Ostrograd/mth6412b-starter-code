@@ -8,19 +8,19 @@ function rank_union!(tree::Tree, node1::TreeNode, node2::TreeNode)
     root2 = find_root(tree, node2)
     if root1 == root2
       warning("Les deux noeuds sont deja dans le meme arbre")
-      return root1
+      return root1, root2
     else
-    if rank(root1) == rank(root2)
-      change_parent!(tree, root2, root1)
-      change_rank!(root1, rank(root1) + 1)
-      return root1
-    elseif rank(root1) > rank(root2)
-      change_parent!(tree, root2, root1)
-      return root1
-    else
-      change_parent!(tree, root1, root2)
-      return root2
-    end
+      if rank(root1) == rank(root2)
+        change_parent!(tree, root2, root1)
+        change_rank!(root1, rank(root1) + 1)
+        return root1, root2
+      elseif rank(root1) > rank(root2)
+        change_parent!(tree, root2, root1)
+        return root1, root2
+      else
+        change_parent!(tree, root1, root2)
+        return root2, root1
+      end
   end
 end
 

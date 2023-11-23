@@ -1,4 +1,5 @@
 using Plots
+using Random
 
 """Analyse un fichier .tsp et renvoie un dictionnaire avec les données de l'entête."""
 function read_header(filename::String)
@@ -39,8 +40,10 @@ function read_nodes(header::Dict{String}{String}, filename::String)
   dim = parse(Int, header["DIMENSION"])
 
   if !(node_coord_type in ["TWOD_COORDS", "THREED_COORDS"]) && !(display_data_type in ["COORDS_DISPLAY", "TWOD_DISPLAY"])
-    for i in range(1,dim)
-      nodes[i] = [0,0]
+    for  i in range(1,dim)
+      #generates a uniform random number between 1 and 3
+      rand_num = rand(1:3)
+      nodes[i] = [rand_num*sin(convert(AbstractFloat,i)),rand_num*cos(convert(AbstractFloat,i))]
     end
     return nodes
   end
@@ -243,14 +246,22 @@ end
 """Fonction de commodité qui lit un fichier stsp et trace le graphe."""
 function plot_graph(filename::String)
   graph_nodes, graph_edges, _ = read_stsp(filename)
-  plot_graph(graph_nodes, graph_edges)
+  fig = plot_graph(graph_nodes, graph_edges)
+  fig
 end
 
 """Affiche un graphe"""
 function plot_graph(graph::Graph)
   node_list = nodes_dictionnary(graph)
+  for node in keys(node_list)
+    println(node)
+    println(node_list[node])
+  end
   edge_list = adjacency_list(graph)
+  for edge in edge_list
+    println(edge)
+  end
 
-  plot_graph(node_list, edge_list)
-
+  fig = plot_graph(node_list, edge_list)
+  fig
 end

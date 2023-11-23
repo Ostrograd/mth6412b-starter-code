@@ -42,42 +42,29 @@ function parcours_preordre(tree, racine)
 end
 
 """ Applique l'algorithme RSL sur un graphe et retourne un nouveau graphe contenant une tournée """
-function rsl(graph::Graph{Y,T},racine::Node{Y}, method = "Prim") where {Y,T}
-    prim = false
-    krusk = false
+function rsl(graph::Graph{Y,T},start_node::Node{Y}, method = "Prim") where {Y,T}
 
-    if method == "Prim"
-        prim = true
-    elseif method == "Kruskal"
-        krusk = true
-    end
-
-    if krusk
-        graph_min = kruskal(graph)
-        tree, racine = graph_to_tree(graph_min, racine)
-    elseif prim
-        tree, racine = prims_algorithm(graph, start_node_name = name(racine)) #Détermine un arbre de recouvrement minimum
+    if method == "Kruskal"
+        tree, racine = kruskal(graph, start_node_name = name(start_node)) #Détermine un arbre de recouvrement minimum
+    else
+        tree, racine = prims_algorithm(graph, start_node_name = name(start_node)) #Détermine un arbre de recouvrement minimum
     end
     
     nodes_list = parcours_preordre(tree, racine) #Parcours l'arbre de recouvrement minimum
-
-    cycle_tree = Tree("Cycle", [racine])
+    cycle_tree = Tree("Cycle", TreeNode{Y}[])
     last_node = racine
-    for node in nodes(tree)[2:end]  #Construit un arbre contenant la tournée
+    for node in nodes(tree)  #Construit un arbre contenant la tournée
         add_node!(cycle_tree, node)     
     end
 
-    for node in nodes_list[2:end]
+    for node in nodes_list
         last_node.children = Vector{Int}[]
         add_child!(last_node,node)
-
         last_node = node
     end
     
     add_child!(last(nodes_list), racine)
-
     cycle = tree_to_graph(cycle_tree, racine)   #Transforme l'arbre en graphe
-
     idx1 = index(racine)    #Ajoute l'arête entre le dernier noeud et la racine
     idx2 = parent_loc(racine)
     add_edge!(cycle, Edge(nodes(cycle)[parent_loc(racine)], nodes(cycle)[parent_loc(nodes_list[2])], adjacency_dict(graph)[idx1][idx2]))
@@ -86,12 +73,14 @@ function rsl(graph::Graph{Y,T},racine::Node{Y}, method = "Prim") where {Y,T}
 end
 
 
-graphe = graph_from_tsp("instances/stsp/swiss42.tsp","graphe")[1]
+#graphe = graph_from_tsp("instances/stsp/swiss42.tsp","graphe")[1]
+bays_29 = graph_from_tsp("instances/stsp/bays29.tsp","graphe")[1]
 
-cycle = rsl(graphe, nodes(graphe)[1])
 
+cycle = rsl(bays_29, nodes(bays_29)[1], "Prims")
 
+#cycle = rsl(graphe, nodes(graphe)[1], "Prims")
 
 show(cycle)
-plot_gr
-poids = sum_of_weights(cycle)
+plot_graph(cycle)
+#poids = sum_of_weights(cycle)

@@ -42,7 +42,8 @@ end
 
 """ Prend une arête [s_i,s_j] et la liste des composantes connexes en input et réunit les composantes connexes de s_i et s_j  """
 function merge_trees!(tree, treenode1, treenode2, edge, graph)
-    rank_union!(tree, treenode1, treenode2)
+    _, child = rank_union!(tree, treenode1, treenode2)
+    change_dist!(child, weight(edge))
     add_edge!(graph,edge)
 end 
 
@@ -80,7 +81,8 @@ function kruskal(graphe::Graph{Y,T}; start_node_name::Any = nothing) where {Y,T}
             merge_trees!(tree,treenode1, treenode2, edge, kruskal_graph)
         end
     end
-    return kruskal_graph
+    root = find_root(tree)
+    return tree, root
     
 end
 
