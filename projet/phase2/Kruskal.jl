@@ -23,12 +23,13 @@ end
 
 
 """ Vérifie si les deux noeud d'une arête donnée sont dans la même composante connexe """
-function nodes_in_same_cconnexe(edge::Edge, treenodes_list, treenodes_names, tree)
+function nodes_in_same_cconnexe(edge::Edge, tree::Tree, correspondance_dict)
     node1, node2 = nodes(edge)
     
-    treenode1 = treenodes_list[findall(x->x == string(name(node1)),treenodes_names)][1]
-    treenode2 = treenodes_list[findall(x->x == string(name(node2)),treenodes_names)][1]
-
+    treenode1 = nodes(tree)[correspondance_dict[name(node1)]]
+    treenode2 = nodes(tree)[correspondance_dict[name(node2)]]
+    # treenode1 = treenodes_list[findall(x->x == string(name(node1)),treenodes_names)][1]
+    # treenode2 = treenodes_list[findall(x->x == string(name(node2)),treenodes_names)][1]
 
     if find_root(tree, treenode1) == find_root(tree, treenode2)
         return true, treenode1, treenode2
@@ -42,31 +43,41 @@ end
 """ Prend une arête [s_i,s_j] et la liste des composantes connexes en input et réunit les composantes connexes de s_i et s_j  """
 function merge_trees!(tree, treenode1, treenode2, edge, graph)
     rank_union!(tree, treenode1, treenode2)
-
     add_edge!(graph,edge)
 end 
 
 
 """ Construit l'arbre de recouvrement minimum avec l'algorithme de Kruskal"""
-function kruskal(graphe::Graph)
+function kruskal(graphe::Graph{Y,T}; start_node_name::Any = nothing) where {Y,T}
     edges_list = insertion!(graphe.edges)   ##Tri les arêtes selon leur poids
-    kruskal_graph = Graph("Kruskal",nodes(graphe),Edge{Int,Vector{Float64}}[])
-    
-    treenodes_list = Vector{TreeNode}()
-    treenodes_names = []
-    i=1
-    for node in nodes(graphe)
-        push!(treenodes_list, TreeNode(name(node), 0, nothing , Vector{Int}(), 0, i))
-        push!(treenodes_names, name(node))
-        
-        i+=1
+    kruskal_graph = Graph("Kruskal",nodes(graphe),Edge{Float64,Vector{Float64}}[])
+    #if the start node is not specified, we take the first node of the graph
+    if !isnothing(start_node_name)
+        for i in 1:length(nodes(graphe))
+            if name(nodes(graphe)[i]) == start_node_name
+                nodes(graphe)[1], nodes(graphe)[i] = nodes(graphe)[i], nodes(graphe)[1]
+                break
+            end
+        end
     end
-   
-    main_tree = Tree{Int}("Arbre", treenodes_list)
+    tree = Tree(name(graphe), Vector{TreeNode{Y}}())
+    correspondance = Dict{String,Int}()
+    treenodes_names = []
+    
+    for (i,node) in enumerate(nodes(graphe))
+        tree_node = TreeNode(name(node), data(node))
+        add_node!(tree, tree_node )
+        #change_rank!(tree_node, i)
+        correspondance[name(node)] = i
+        # push!(treenodes_list, TreeNode(name(node), 0, nothing , Vector{Int}(), 0, i))
+        # push!(treenodes_names, name(node))
+        
+    end
+    # main_tree = Tree{Float64}("Arbre", treenodes_list)
     for edge in edges_list 
-        in_same, treenode1, treenode2 = nodes_in_same_cconnexe(edge, treenodes_list,treenodes_names, main_tree)
+        in_same, treenode1, treenode2 = nodes_in_same_cconnexe(edge, tree,correspondance)
         if !in_same
-            merge_trees!(main_tree,treenode1, treenode2, edge, kruskal_graph)
+            merge_trees!(tree,treenode1, treenode2, edge, kruskal_graph)
         end
     end
     return kruskal_graph
