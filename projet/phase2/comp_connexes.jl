@@ -218,6 +218,18 @@ function find_root(tree::Tree)
 end
 
 
+"""Gets all of the leaves in a tree"""
+function get_leaves(tree::Tree)
+    leaves = []
+    for node in nodes(tree)
+        if length(children(tree, node)) == 0
+            push!(leaves, node)
+        end
+    end
+    return leaves
+end
+
+
 
 """Affiche un arbre"""
 function show(tree::AbstractTree)

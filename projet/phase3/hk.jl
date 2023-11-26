@@ -14,7 +14,7 @@ include("../phase2/prims_algorithm.jl")
 
 
 
-
+"""Gets closest edges in a tree, not neccessairly leaves."""
 function get_closest_edges(graph::Graph, departure_node::Node)
     shortest_edge_vec = Vector{Edge}(undef, 2)
     shortest_dist_vec = Vector{Float64}([Inf, Inf])
@@ -22,8 +22,6 @@ function get_closest_edges(graph::Graph, departure_node::Node)
         node1, node2 = nodes(edge)
         if name(node1) == name(departure_node) || name(node2) == name(departure_node)
             #copies over the previous best to second best
-            println("here is the edge", edge)
-            println("here is the edge weight", weight(edge))
             if weight(edge) < shortest_dist_vec[1]
 
                 if shortest_dist_vec[1]< shortest_dist_vec[2]
@@ -41,11 +39,11 @@ function get_closest_edges(graph::Graph, departure_node::Node)
     return  shortest_edge_vec[1], shortest_edge_vec[2]
 end
 
+"""Gets all of the leaves in a graph"""
 function get_leaves(graph::Graph)
     leaves = []
     adj_dict = adjacency_dict(graph)
     for node in keys(adj_dict)
-        println("here is the adj dict", adj_dict[node])
         if length(keys(adj_dict[node])) == 1
             push!(leaves, node)
         end
@@ -53,6 +51,7 @@ function get_leaves(graph::Graph)
     return leaves
 end
 
+"""Gets all of the leaves in a tree"""
 function get_leaves(tree::Tree)
     leaves = []
     for node in nodes(tree)
@@ -63,6 +62,7 @@ function get_leaves(tree::Tree)
     return leaves
 end
 
+"""Searches the tree for the closest leaves to a given node outside of the tree"""
 function get_closest_leaves(tree::Tree, graph::Graph,departure_node::Node)
     ##Gets all of the nodes with tree get_closest_leaves
     shortest_edge_vec = Vector{Edge}(undef, 2)
@@ -91,7 +91,7 @@ function get_closest_leaves(tree::Tree, graph::Graph,departure_node::Node)
 end
 
 
-
+"""Returns the one tree for the hk heuristic"""
 function find_one_tree(graph::Graph, departure_node::Node; edge_selector::String ="leaves", tree_algorithm::Function = prims_algorithm)
     #Copies graph to feed into prim's algorithm
     start_graph = deepcopy(graph)
@@ -116,7 +116,7 @@ function find_one_tree(graph::Graph, departure_node::Node; edge_selector::String
 end
 
 
-
+"""Changes the edge weights of a graph given the pis"""
 function update_edge_weights!(graph::Graph, pis::Vector{Float64})
     correspondance_dict = Dict()
     for (i, node) in enumerate(nodes(graph))
@@ -131,15 +131,30 @@ function update_edge_weights!(graph::Graph, pis::Vector{Float64})
     end
 end
 
+"""function that returns the departure node, if not nothing, else returns first node in graph"""
+function default_departure_node_selector(graph::Graph, departure_node::Union{Node, Nothing} = nothing)
+    if isnothing(departure_node)
+        return nodes(graph)[1]
+    end
+    return departure_node
+end
+
+function random_departure_node_selector(graph::Graph,departure_node::Union{Node, Nothing} = nothing)
+    return nodes(graph)[rand(1:length(nodes(graph)))]
+end
+
 """subgradient heuristic for calculating a minimal tour"""
-function lkh_subgradient(start_graph::Graph;  departure_node::Union{Node, Nothing} = nothing, t_k_method::String = "1/k", tree_algorithm::Function = prims_algorithm)
+function lkh_subgradient(start_graph::Graph;  
+    departure_node::Union{Node, Nothing} = nothing, 
+    departure_node_selector::Function = default_departure_node_selector,
+    t_k_method::String = "1/k", 
+    tree_algorithm::Function = prims_algorithm,
+    stop_k::Int = 1000000)
     #initialisation of variables for tk calculation
     start_weight = sum_of_weights(start_graph)  
     no_nodes = length(nodes(start_graph))
     #choose starting node if none is given
-    if isnothing(departure_node)
-        departure_node = nodes(start_graph)[1]
-    end
+    departure_node = departure_node_selector(start_graph, departure_node)
     graph = deepcopy(start_graph)
     k = 0
     t_k = 0
@@ -147,7 +162,7 @@ function lkh_subgradient(start_graph::Graph;  departure_node::Union{Node, Nothin
     pis = zeros(length(nodes(graph)))
     adjacency_list = adjacency_dict(graph)
 
-    while true && k < 1000000
+    while k < stop_k
         iter_time = time()
         total_distance, one_tree = find_one_tree(graph, departure_node, edge_selector = "leaves", tree_algorithm=tree_algorithm)
         weights_k = total_distance - 2 * sum(pis)
@@ -179,6 +194,63 @@ function lkh_subgradient(start_graph::Graph;  departure_node::Union{Node, Nothin
     end
     return Inf, nothing
 end
+
+function h_k_exact_algorithm(g::Graph ; start_node_name::Any = nothing)
+    #if no start node name, first node is start node
+    if isnothing(start_node_name)
+        start_node_name = name(nodes(g)[1])
+    end
+    #move start node to first position of graph
+    for (i, node) in enumerate(nodes(g))
+        if name(node) == start_node_name
+            g.nodes[1], g.nodes[i] = g.nodes[i], g.nodes[1]
+            break
+        end
+    end
+    #create adjacency list
+    adjacency_list = adjacency_dict(g)
+    distance_dict = Dict()
+    for k in 2:length(nodes(g))
+        distance_dict[(Set([k]), k)] = Dict("c" =>adjacency_list[1][k], "p"=> [1, k])
+    end
+    for s in 2:length(nodes(g))-1
+        for subset in combinations(2:length(nodes(g)), s)
+            for k in subset
+                min_dist = Inf
+                for m in subset 
+                    if m !=k
+                        predecessor = distance_dict[(setdiff(Set(subset), Set([k])), m)]
+                        #println("predecessor", predecessor)
+                        dist = predecessor["c"] + adjacency_list[m][k]
+                        if dist < min_dist
+                            min_dist = dist
+                            min_m = m
+                            new_list = copy(predecessor["p"])
+                            append!(new_list, k)
+                            distance_dict[(Set(subset), k)] = Dict("c" => min_dist, "p" => new_list)
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    #returns the minimum path from the start node that goes to all of the other paths
+    min = Inf
+    final_path = []
+    for k in 2:length(nodes(g))
+        distance = distance_dict[(Set(2:length(nodes(g))), k)]["c"] + adjacency_list[k][1]
+        println("distance = ", distance)
+        if distance < min
+            println("distance = ", distance)
+            min = distance
+            final_path = copy(distance_dict[(Set(2:length(nodes(g))), k)]["p"])
+            append!(final_path, 1)
+        end
+    end
+    return min, final_path
+end
+
 
 
 
@@ -221,12 +293,12 @@ edge_list = [edge1, edge2, edge3, edge4, edge5, edge6,
 tsp_test2 = Graph("Test2",node_list,edge_list)
 
 
-graphe_test = Graph("Test",Node{Vector{Float64}}[],Edge{Int,Vector{Float64}}[])
+# graphe_test = Graph("Test",Node{Vector{Float64}}[],Edge{Int,Vector{Float64}}[])
 
 
-score, test2_graph = lkh_subgradient(tsp_test2, t_k_method = "weights/k")
-println(score)
+# score, test2_graph = lkh_subgradient(tsp_test2, t_k_method = "weights/k")
+# println(score)
 
-gr17_graph, gr17_nodes = graph_from_tsp("instances/stsp/gr17.tsp","graphe1")
-println("running h_k_algorithm on gr17")
-@time total_distance, one_tree = lkh_subgradient(gr17_graph, t_k_method = "sqrt", tree_algorithm = kruskal)
+# gr17_graph, gr17_nodes = graph_from_tsp("instances/stsp/gr17.tsp","graphe1")
+# println("running h_k_algorithm on gr17")
+# @time total_distance, one_tree = lkh_subgradient(gr17_graph, t_k_method = "weights/k", departure_node= nodes(gr17_graph)[2], tree_algorithm = prims_algorithm, departure_node_selector = random_departure_node_selector)

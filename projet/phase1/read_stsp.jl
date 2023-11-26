@@ -238,9 +238,7 @@ function plot_graph(nodes, edges)
   xys = values(nodes)
   x = [xy[1] for xy in xys]
   y = [xy[2] for xy in xys]
-  println("Here are the nodes", keys(nodes))
   label = keys(nodes)
-  println("Here is the lable", label)
   scatter!(x, y,  markersize=5, color=:black)
   x_prime = [xy[1]+0.01 for xy in xys]
   y_prime = [xy[2]+0.01 for xy in xys]

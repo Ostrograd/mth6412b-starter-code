@@ -63,7 +63,7 @@ function prims_algorithm(graph::Graph{Y,T}; start_node_name::Any = nothing) wher
                 if index(data(item)) == neighbor_idx
                     if  edge_weight < priority(item)
                         change_parent!(tree, nodes(tree)[neighbor_idx], data(priority_node))
-                        change_rank!( nodes(tree)[neighbor_idx], edge_weight)
+                        change_dist!( nodes(tree)[neighbor_idx], edge_weight)
                         priority!(item, edge_weight)
                     end
                 break

@@ -165,3 +165,18 @@ function adjacency_list(graph::Graph)
   return liste
 end
 
+#Functions that creates a 2d vector of the adjacency matrix
+function get_adjacency_matrix(graph::Graph)
+  adjacency_list = adjacency_dict(graph)
+  adjacency_matrix = zeros(length(nodes(graph)), length(nodes(graph)))
+  for i in 1:length(nodes(graph))
+      for j in 1:length(nodes(graph))
+          if haskey(adjacency_list[i], j)
+              adjacency_matrix[i,j] = adjacency_list[i][j]
+          else
+              adjacency_matrix[i,j] = Inf
+          end
+      end
+  end
+  return adjacency_matrix
+end

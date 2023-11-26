@@ -74,15 +74,17 @@ function rsl(graph::Graph{Y,T},start_node::Node{Y}, method = "Prim") where {Y,T}
 end
 
 
-#graphe = graph_from_tsp("instances/stsp/swiss42.tsp","graphe")[1]
-bays_29 = graph_from_tsp("instances/stsp/bays29.tsp","graphe")[1]
+# #graphe = graph_from_tsp("instances/stsp/swiss42.tsp","graphe")[1]
+# bays_29 = graph_from_tsp("instances/stsp/bays29.tsp","graphe")[1]
 
 
-cycle = rsl(bays_29, nodes(bays_29)[1], "Prims")
+# cycle = rsl(bays_29, nodes(bays_29)[1], "Prims")
 
-println("here are the degrees", degree(cycle))
-#cycle = rsl(graphe, nodes(graphe)[1], "Prims")
 
-show(cycle)
-plot_graph(cycle)
-#poids = sum_of_weights(cycle)
+# # println("here are the degrees", degree(cycle))
+# # #cycle = rsl(graphe, nodes(graphe)[1], "Prims")
+
+# show(cycle)
+# plot_graph(cycle)
+# println("Sum of weights ", sum_of_weights(cycle))
+# # #poids = sum_of_weights(cycle)
