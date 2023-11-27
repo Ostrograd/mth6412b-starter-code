@@ -9,6 +9,7 @@ include("../phase2/heuristics.jl")
 include("../phase2/Kruskal.jl")
 include("../phase2/prims_algorithm.jl")
 include("../phase3/hk.jl")
+include("../phase3/rsl.jl")
 using(Test)
 
 
@@ -62,6 +63,7 @@ end
 one_tree_dist, one_tree = find_one_tree(tsp_test, noded)
 @test length(nodes(one_tree))==5
 
+println("TESTING UPDATE EDGE WEIGHtS")
 #testing update_edge_weights
 tsp_test3 = deepcopy(tsp_test)
 new_edge_weights = [0.1, 0.2, 0.3, -4, 5]
@@ -74,3 +76,26 @@ ae_edge = edges(tsp_test3)[4]
 total_distance, one_tree = lkh_subgradient(tsp_test, departure_node = noded, t_k_method = "1/k", stop_k = 1000000)
 @test degree(one_tree) == [2,2,2,2,2]
 @test total_distance == 28
+
+
+
+
+println("TESTING RSL")
+#testing rsl.jl
+#testing parcours_preordre
+println("TESTING parcours_preordre")
+show(test_tree)
+racine = nodes(test_tree)[1]
+parcours_liste = parcours_preordre(test_tree, racine)
+@test parcours_liste[1] == racine
+@test length(parcours_liste) == length(nodes(test_tree))
+
+#testing rsl
+println("TESTING rsl")
+cycle1 = rsl(tsp_test, nodea, "Kruskal")
+cycle2 = rsl(tsp_test, nodea, "Prim")
+
+@test length(nodes(cycle1)) == length(nodes(tsp_test))
+@test length(nodes(cycle2)) == length(nodes(tsp_test))
+@test length(edges(cycle1)) == length(nodes(cycle1))
+@test length(edges(cycle2)) == length(nodes(cycle2))
