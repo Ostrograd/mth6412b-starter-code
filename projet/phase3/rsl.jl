@@ -82,17 +82,32 @@ function rsl(graph::Graph{Y,T},start_node::Node{Y}, method::String="Prim") where
 end
 
 
-# #graphe = graph_from_tsp("instances/stsp/swiss42.tsp","graphe")[1]
-# bays_29 = graph_from_tsp("instances/stsp/bays29.tsp","graphe")[1]
+function optimal_rsl(start_graph::Graph{Y,T}) where {Y,T}
+    
+    optimal_cycle_length = Inf64
+    optimal_cycle = 0
+    optimal_method = "0"
+    optimal_start_node = 0
+    for method_name in [ "Kruskal", "Prim"]
+        
+        for start_node in nodes(start_graph)
+            graph = deepcopy(start_graph)
+            cycle = rsl(graph, start_node, method_name)
+            value = sum_of_weights(cycle)
+            
+            if value < optimal_cycle_length
+                
+                optimal_cycle_length = value
+                optimal_cycle = cycle
+                optimal_method = method_name
+                optimal_start_node = start_node
+            end
 
+        end
 
-# cycle = rsl(bays_29, nodes(bays_29)[1], "Prims")
+    end
+    println("La meilleure tournée que l'on peut trouver avec RSL est de longueur : ",optimal_cycle_length, "\nElle est obtenue à l'aide de l'algorithme de ",optimal_method," avec \
+     ", optimal_start_node.name, " comme racine.")
 
-
-# # println("here are the degrees", degree(cycle))
-# # #cycle = rsl(graphe, nodes(graphe)[1], "Prims")
-
-# show(cycle)
-# plot_graph(cycle)
-# println("Sum of weights ", sum_of_weights(cycle))
-# # #poids = sum_of_weights(cycle)
+    return optimal_cycle
+end

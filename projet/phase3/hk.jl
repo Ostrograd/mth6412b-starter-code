@@ -264,8 +264,8 @@ function brute_force_tsp(g::Graph, start_node::Any)
             dist += adjacency_list[perm[i]][perm[i+1]]
         end
         dist += adjacency_list[perm[end]][perm[1]]
-        println("permutation", perm)
-        println("dist = ", dist)
+        #println("permutation", perm)
+        #println("dist = ", dist)
         if dist < min_dist
             min_dist = dist
             min_perm = perm
@@ -331,56 +331,3 @@ function greedy_tsp(graph::Graph{Y,T}, departure_node::Union{Node, Nothing} = no
     correspondance_dict[name(nodes(tour_graph)[1])]]))
     return tour_graph
 end
-
-#Fully connected graph with 7 edges
-a = Node("a",[0.])
-b = Node("b",[0.])
-c = Node("c",[0.])
-d = Node("d",[0.])
-e = Node("e",[0.])
-f = Node("f",[0.])
-g = Node("g",[0.])
-node_list = [a,b,c, d,e, f, g]
-#Edges are fully connected
-edge1 = Edge(a,b, 4.)
-edge2 = Edge(a,c, 8.)
-edge3 = Edge(a, d, 11.)
-edge4 = Edge(a, e, 8.)
-edge5 = Edge(a, f, 7.)
-edge6 = Edge(a, g, 1.)
-edge7 = Edge(b, c, 6.)
-edge8 = Edge(b, d, 2.)
-edge9 = Edge(b, e, 4.)
-edge10 = Edge(b, f, 7.)
-edge11 = Edge(b, g, 2.)
-edge12 = Edge(c, d, 7.)
-edge13 = Edge(c, e, 1.)
-edge14 = Edge(c, f, 6.)
-edge15 = Edge(c, g, 3.)
-edge16 = Edge(d, e, 5.)
-edge17 = Edge(d, f, 4.)
-edge18 = Edge(d, g, 8.)
-edge19 = Edge(e, f, 2.)
-edge20 = Edge(e, g, 7.)
-edge21 = Edge(f, g, 3.)
-edge_list = [edge1, edge2, edge3, edge4, edge5, edge6,
-                edge7, edge8, edge9, edge10, edge11,
-                edge12, edge13, edge14, edge15, edge16,
-                edge17, edge18, edge19, edge20, edge21]
-
-
-
-    
-#creates the graph
-#tsp_test2 = Graph("Test2",node_list,edge_list)
-
-
-# graphe_test = Graph("Test",Node{Vector{Float64}}[],Edge{Int,Vector{Float64}}[])
-
-
-# score, test2_graph = lkh_subgradient(tsp_test2, t_k_method = "weights/k")
-# println(score)
-
-# gr17_graph, gr17_nodes = graph_from_tsp("instances/stsp/gr17.tsp","graphe1")
-# println("running h_k_algorithm on gr17")
-# @time total_distance, one_tree = lkh_subgradient(gr17_graph, t_k_method = "weights/k", departure_node= nodes(gr17_graph)[2], tree_algorithm = prims_algorithm, departure_node_selector = random_departure_node_selector)
