@@ -62,10 +62,15 @@ end
 one_tree_dist, one_tree = find_one_tree(tsp_test, noded)
 @test length(nodes(one_tree))==5
 
-println("TESTING UPDATE EDGE WEIGHtS")
 #testing update_edge_weights
 tsp_test3 = deepcopy(tsp_test)
 new_edge_weights = [0.1, 0.2, 0.3, -4, 5]
 update_edge_weights!(tsp_test3, new_edge_weights)
 ae_edge = edges(tsp_test3)[4]
 @test weight(ae_edge) == 14.1
+
+#Testing function 
+
+total_distance, one_tree = lkh_subgradient(tsp_test, departure_node = noded, t_k_method = "1/k", stop_k = 1000000)
+@test degree(one_tree) == [2,2,2,2,2]
+@test total_distance == 28
