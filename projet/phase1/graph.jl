@@ -140,10 +140,19 @@ function degree(graph::Graph)
   return degrees
 end
 
+"""Verifi si un string est un nombre"""
+function check_str2(a)
+  return tryparse(Float64, a) !== nothing
+end
+
 function nodes_dictionnary(graph::Graph)
     nodes_dict = Dict()
-  for node in nodes(graph)
+  for (ind, node) in enumerate(nodes(graph))
+    if check_str2(name(node))
     nodes_dict[parse(Int,name(node))] = data(node)
+    else
+      nodes_dict[ind] = data(node)
+    end
   end
   return nodes_dict
 end

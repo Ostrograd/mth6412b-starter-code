@@ -195,6 +195,7 @@ function lkh_subgradient(start_graph::Graph;
     return Inf, nothing
 end
 
+"""Exact algorithm for calculating TSP"""
 function h_k_exact_algorithm(g::Graph ; start_node_name::Any = nothing)
     #if no start node name, first node is start node
     if isnothing(start_node_name)
@@ -220,7 +221,6 @@ function h_k_exact_algorithm(g::Graph ; start_node_name::Any = nothing)
                 for m in subset 
                     if m !=k
                         predecessor = distance_dict[(setdiff(Set(subset), Set([k])), m)]
-                        #println("predecessor", predecessor)
                         dist = predecessor["c"] + adjacency_list[m][k]
                         if dist < min_dist
                             min_dist = dist
@@ -251,8 +251,86 @@ function h_k_exact_algorithm(g::Graph ; start_node_name::Any = nothing)
     return min, final_path
 end
 
+"""Brute force calculates TSP solution"""
+function brute_force_tsp(g::Graph, start_node::Any)
+    adjacency_list = adjacency_dict(g)
+    g_nodes = nodes(g)
+    nodes_perm = collect(permutations(collect(1:length(g_nodes))))
+    min_dist = Inf
+    min_perm = []
+    for perm in nodes_perm
+        dist = 0
+        for i in 1:length(perm)-1
+            dist += adjacency_list[perm[i]][perm[i+1]]
+        end
+        dist += adjacency_list[perm[end]][perm[1]]
+        println("permutation", perm)
+        println("dist = ", dist)
+        if dist < min_dist
+            min_dist = dist
+            min_perm = perm
+        end
+        
+    end
+    return min_dist, min_perm
+end
 
+#Functions that creates a 2d vector of the adjacency matrix
+function get_adjacency_matrix(graph::Graph)
+    adjacency_list = adjacency_dict(graph)
+    adjacency_matrix = zeros(length(nodes(graph)), length(nodes(graph)))
+    for i in 1:length(nodes(graph))
+        for j in 1:length(nodes(graph))
+            if haskey(adjacency_list[i], j)
+                adjacency_matrix[i,j] = adjacency_list[i][j]
+            else
+                adjacency_matrix[i,j] = Inf
+            end
+        end
+    end
+    return adjacency_matrix
+end
 
+#Greedy heuristic for TSP problem
+function greedy_tsp(graph::Graph{Y,T}, departure_node::Union{Node, Nothing} = nothing) where {Y,T}
+    #Creates an adjacency matrix of the graph
+    adjacency_matrix = get_adjacency_matrix(graph)
+    start_adj = copy(adjacency_matrix)
+    correspondance_dict = Dict()
+    for (i, node) in enumerate(nodes(graph))
+        correspondance_dict[name(node)] = i
+    end
+    #Chooses the departure node
+    current_node = default_departure_node_selector(graph, departure_node)
+    current_idx = correspondance_dict[name(current_node)]
+    nearest_neighbor_idx = current_idx
+    best_nearest_neighbor_idx = current_idx
+    #Defines tour graph
+    tour_graph = Graph("Tour", Node{Y}[], Edge{T,Y}[])
+    #Go to nearest node. After node is visited, set its distance to infinity for all other nodes
+    for node in nodes(graph)
+        best_edge_weight = Inf
+        for (neighbor_idx, edge_weight) in enumerate(adjacency_matrix[current_idx, :])
+            if adjacency_matrix[current_idx, neighbor_idx] < best_edge_weight
+                best_edge_weight = adjacency_matrix[current_idx, neighbor_idx]
+                best_nearest_neighbor_idx = neighbor_idx
+            end
+            nearest_neighbor_idx = best_nearest_neighbor_idx
+        end
+        nearest_neighbor = nodes(graph)[nearest_neighbor_idx]
+        #adds an edge to the tour graph
+        add_edge!(tour_graph, Edge(current_node, nearest_neighbor, best_edge_weight))
+        current_node = nearest_neighbor
+        current_idx = nearest_neighbor_idx
+        #removes the node from consideration by setting it to infinity.
+        adjacency_matrix[:, nearest_neighbor_idx] .= Inf
+    end
+    # #Adds the last edge to the tour
+    add_edge!(tour_graph, Edge(nodes(tour_graph)[end], nodes(tour_graph)[1], 
+    start_adj[correspondance_dict[name(nodes(tour_graph)[end])], 
+    correspondance_dict[name(nodes(tour_graph)[1])]]))
+    return tour_graph
+end
 
 #Fully connected graph with 7 edges
 a = Node("a",[0.])
@@ -289,8 +367,12 @@ edge_list = [edge1, edge2, edge3, edge4, edge5, edge6,
                 edge7, edge8, edge9, edge10, edge11,
                 edge12, edge13, edge14, edge15, edge16,
                 edge17, edge18, edge19, edge20, edge21]
+
+
+
+    
 #creates the graph
-tsp_test2 = Graph("Test2",node_list,edge_list)
+#tsp_test2 = Graph("Test2",node_list,edge_list)
 
 
 # graphe_test = Graph("Test",Node{Vector{Float64}}[],Edge{Int,Vector{Float64}}[])
