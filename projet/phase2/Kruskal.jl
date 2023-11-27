@@ -1,3 +1,13 @@
+
+include("../phase1/node.jl")
+include("../phase1/edges.jl")
+include("../phase1/graph.jl")
+include("../phase1/read_stsp.jl")
+include("../phase2/comp_connexes.jl")
+include("../phase1/main.jl")
+include("../phase2/queue.jl")
+include("../phase2/heuristics.jl")
+
 """
 Ce code implémente l'algorithme de Kruskal qui crée un arbre de
 recouvrement minimum à partir d'un graphe
@@ -30,7 +40,9 @@ function nodes_in_same_cconnexe(edge::Edge, tree::Tree, correspondance_dict)
     treenode2 = nodes(tree)[correspondance_dict[name(node2)]]
     # treenode1 = treenodes_list[findall(x->x == string(name(node1)),treenodes_names)][1]
     # treenode2 = treenodes_list[findall(x->x == string(name(node2)),treenodes_names)][1]
-
+    # println("FIND ROOT OF", treenode1, treenode2)
+    # println("Root2", find_root(tree, treenode2))
+    # println("Root1", find_root(tree, treenode1))
     if find_root(tree, treenode1) == find_root(tree, treenode2)
         return true, treenode1, treenode2
     else
@@ -41,10 +53,25 @@ end
 
 
 """ Prend une arête [s_i,s_j] et la liste des composantes connexes en input et réunit les composantes connexes de s_i et s_j  """
-function merge_trees!(tree, treenode1, treenode2, edge, graph)
-    _, child = rank_union!(tree, treenode1, treenode2)
-    change_dist!(child, weight(edge))
-    add_edge!(graph,edge)
+function merge_trees!(tree, treenode1, treenode2, edge, kruskal_tree, correspondance_dict)
+    #keeps track of the composantes connexes
+    par, child = rank_union!(kruskal_tree, treenode1, treenode2)
+    #connects the edges for the solution tree
+    solution_n1 = nodes(tree)[correspondance_dict[name(treenode1)]]
+    solution_n2 = nodes(tree)[correspondance_dict[name(treenode2)]]
+    #If one node doesn't have a parent, it becomes the child
+    if !isnothing(parent(tree, solution_n2))&& isnothing(parent(tree, solution_n1))
+        change_parent!(tree, solution_n1, solution_n2)
+        change_dist!(solution_n1, weight(edge))
+    elseif !isnothing(parent(tree, solution_n1)) && isnothing(parent(tree, solution_n2))
+        change_parent!(tree, solution_n2, solution_n1)
+        change_dist!(solution_n2, weight(edge))
+        #If both nodes have a parent, we reverse the direction of the edges for one and make it the child of the other
+    else
+        reverse_direction!(tree,solution_n1)
+        change_parent!(tree, solution_n1, solution_n2)
+        change_dist!(solution_n1, weight(edge))
+    end
 end 
 
 
@@ -61,25 +88,27 @@ function kruskal(graphe::Graph{Y,T}; start_node_name::Any = nothing) where {Y,T}
             end
         end
     end
+    #tree to keep track of disjoint sets
+    kruskal_tree = Tree(name(graphe), Vector{TreeNode{Y}}())
+    #solution tree
     tree = Tree(name(graphe), Vector{TreeNode{Y}}())
     correspondance = Dict{String,Int}()
     treenodes_names = []
-    
+    #
     for (i,node) in enumerate(nodes(graphe))
         tree_node = TreeNode(name(node), data(node))
-        add_node!(tree, tree_node )
-        #change_rank!(tree_node, i)
+        add_node!(tree, deepcopy(tree_node ))
+        add_node!(kruskal_tree, deepcopy(tree_node ))
         correspondance[name(node)] = i
-        # push!(treenodes_list, TreeNode(name(node), 0, nothing , Vector{Int}(), 0, i))
-        # push!(treenodes_names, name(node))
-        
+
     end
     # main_tree = Tree{Float64}("Arbre", treenodes_list)
     for edge in edges_list 
-        in_same, treenode1, treenode2 = nodes_in_same_cconnexe(edge, tree,correspondance)
+        
+        in_same, treenode1, treenode2 = nodes_in_same_cconnexe(edge, kruskal_tree,correspondance)
         if !in_same
-            merge_trees!(tree,treenode1, treenode2, edge, kruskal_graph)
-        end
+            merge_trees!(tree,treenode1, treenode2, edge, kruskal_tree, correspondance)
+        end   
     end
     root = find_root(tree)
     return tree, root
@@ -137,3 +166,48 @@ function graph_to_tree(graph::Graph{Y,T} ,root::Node{Y}) where {Y,T}
     return arbre, find_root(arbre)
 end
 
+graphe_test = Graph("Test",Node{Vector{Float64}}[],Edge{Int,Vector{Float64}}[])
+
+#Nodes 
+nodea = Node("a",[0.])
+nodeb = Node("b",[0.])
+nodec = Node("c",[0.])
+noded = Node("d",[0.])
+nodee = Node("e",[0.])
+nodef = Node("f",[0.])
+nodeg = Node("g",[0.])
+nodeh = Node("h",[0.])
+nodei = Node("i",[0.])
+node_list = [nodea,nodeb,nodec, noded,nodee, nodef, 
+                nodeg, nodeh, nodei]
+
+#Edges
+edge1 = Edge(nodea,nodeb, 4)
+edge2 = Edge(nodea,nodeh, 8)
+edge3 = Edge(nodeb, nodeh, 11)
+edge4 = Edge(nodeb, nodec, 8)
+edge5 = Edge(nodeh, nodei, 7)
+edge6 = Edge(nodeh, nodeg, 1)
+edge7 = Edge(nodeg, nodei, 6)
+edge8 = Edge(nodeg, nodef, 2)
+edge9 = Edge(nodec, nodef, 4)
+edge10 = Edge(nodei, nodec, 2)
+edge11 = Edge(nodef, nodee, 10)
+edge12 = Edge(nodee, noded, 9)
+edge13 = Edge(nodec,noded, 7)
+edge14 = Edge(noded, nodef, 14)
+edge_list = [edge1, edge2, edge3, edge4, edge5, edge6,
+                edge7, edge8, edge9, edge10, edge11,
+                edge12, edge13, edge14]
+
+##Construction du graphe
+for i in node_list
+    add_node!(graphe_test,i)
+end
+for i in edge_list
+    add_edge!(graphe_test, i)
+end
+kruskal_tree, root = kruskal(graphe_test, start_node_name = "a")
+k_graph = tree_to_graph(kruskal_tree, root)
+show(k_graph)
+println("sum of weights", sum_of_weights(k_graph))

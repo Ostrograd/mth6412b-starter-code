@@ -218,6 +218,20 @@ function find_root(tree::Tree)
 end
 
 
+
+"""Reverses the parent child relationship of nodes starting at a given node"""
+function reverse_direction!(tree::Tree, node::TreeNode)
+  if isnothing(parent(tree, node))
+    return node
+  else
+      parent_to_reverse = reverse_direction!(tree, parent(tree, node))
+      change_dist!(parent_to_reverse, dist(node))
+      remove_child!(parent_to_reverse, node)
+      change_parent!(tree, parent_to_reverse, node)
+      return node
+    end
+end
+
 """Gets all of the leaves in a tree"""
 function get_leaves(tree::Tree)
     leaves = []
