@@ -8,7 +8,7 @@ include("../phase1/main.jl")
 include("../phase2/queue.jl")
 include("../phase2/heuristics.jl")
 include("../phase2/Kruskal.jl")
-include
+
 
 """ Parcours un arbre en préordre et retourne la liste des noeuds dans l'ordre dans lequel ils ont été visités."""
 function parcours_preordre(tree, racine)
@@ -42,8 +42,9 @@ function parcours_preordre(tree, racine)
     return parcours_liste
 end
 
-""" Applique l'algorithme RSL sur un graphe et retourne un nouveau graphe contenant une tournée """
-function rsl(graph::Graph{Y,T},start_node::Node{Y}, method = "Prim") where {Y,T}
+""" Applique l'algorithme RSL sur un graphe et retourne un nouveau graphe contenant une tournée.
+Spécifier la méthode : 'Prim' ou 'Kruskal' """
+function rsl(graph::Graph{Y,T},start_node::Node{Y}, method::String="Prim") where {Y,T}
 
     if method == "Kruskal"
         tree, racine = kruskal(graph, start_node_name = name(start_node)) #Détermine un arbre de recouvrement minimum
@@ -59,8 +60,15 @@ function rsl(graph::Graph{Y,T},start_node::Node{Y}, method = "Prim") where {Y,T}
     end
 
     for node in nodes_list
+        idx1 = last_node.index
+        idx2 = node.index
+        if idx1 != idx2
+            distance = adjacency_dict(graph)[idx1][idx2]
+            change_dist!(node, distance)
+        end
         last_node.children = Vector{Int}[]
         add_child!(last_node,node)
+        
         last_node = node
     end
     
