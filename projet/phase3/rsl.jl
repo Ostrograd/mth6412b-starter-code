@@ -78,7 +78,7 @@ function rsl(graph::Graph{Y,T},start_node::Node{Y}, method::String="Prim") where
     idx2 = parent_loc(racine)
     add_edge!(cycle, Edge(nodes(cycle)[parent_loc(racine)], nodes(cycle)[parent_loc(nodes_list[2])], adjacency_dict(graph)[idx1][idx2]))
 
-    return cycle
+    return cycle, nodes_list
 end
 
 

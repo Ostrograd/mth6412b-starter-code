@@ -29,7 +29,7 @@ function score_picture(filename::String)
 end
 
 """Write a tour in TSPLIB format."""
-function write_tour(filename::String, tour::Array{Int}, cost::Float32)
+function write_tour(filename::String, tour::Array{Int}, cost)
 	file = open(filename, "w")
 	length_tour = length(tour)
 	write(file,"NAME : $filename\n")
