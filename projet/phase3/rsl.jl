@@ -111,3 +111,41 @@ function optimal_rsl(start_graph::Graph{Y,T}) where {Y,T}
 
     return optimal_cycle
 end
+
+"""Teste (nbr_of_tests) sommets comme sommets de départ pour rsl avec l'algorithme de Prim et renvoie la meilleure solution trouvée"""
+function semi_optimal_rsl(start_graph::Graph{Y,T}, nbr_of_tests::Int64) where {Y,T}
+    optimal_cycle_length = Inf64
+    optimal_cycle = 0
+    optimal_method = "0"
+    optimal_start_node = 0
+    optimal_nodes_list = []
+    
+    nodes_to_try = rand(1:length(nodes(start_graph)), nbr_of_tests)
+    for method_name in ["Prim"]
+        println("Testing with ",method_name)
+        
+        for start_node_index in nodes_to_try
+            println("Testing with node :", start_node_index)
+            start_node = nodes(start_graph)[start_node_index]
+            graph = deepcopy(start_graph)
+            cycle, nodes_list = rsl(graph, start_node, method_name)
+            value = sum_of_weights(cycle)
+            
+            if value < optimal_cycle_length
+                
+                optimal_cycle_length = value
+                optimal_cycle = cycle
+                optimal_method = method_name
+                optimal_start_node = start_node
+                optimal_nodes_list = nodes_list
+            end
+
+        end
+
+    end
+    println("La meilleure tournée que l'on peut trouver avec RSL est de longueur : ",optimal_cycle_length, "\nElle est obtenue à l'aide de l'algorithme de ",optimal_method," avec \
+     ", optimal_start_node.name, " comme racine.")
+
+    return optimal_cycle, optimal_nodes_list
+end
+
