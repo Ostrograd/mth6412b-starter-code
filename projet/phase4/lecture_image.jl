@@ -21,7 +21,7 @@ for node in nodes_list
     push!(tour_indexes, index(node))
 end
 println("running two opt")
-two_opt_cycle_graph, two_opt_cycle, two_opt_cost = run_two_opt(graph,cycle, tour_indexes, iter_stop = 2000)
+@time two_opt_cycle_graph, two_opt_cycle, two_opt_cost = run_two_opt(graph,cycle, tour_indexes, iter_stop = 3000)
 nodes_index_list = two_opt_cycle .- 1
 println("2 opt finished with cost ", sum_of_weights(two_opt_cycle_graph))
 
@@ -39,6 +39,6 @@ nodes_list[2]
 
 tour = "cat.tour"
 tour_theorique = "instances/tsp/tours/nikos-cat.tour"
-write_tour("cat.tour",nodes_index_list, sum_of_weights(cycle))
+write_tour("cat.tour",nodes_index_list, sum_of_weights(two_opt_cycle_graph))
 
 reconstruct_picture(tour, "instances/images/shuffled/nikos-cat.png", "nikos-cat-reconstruit.png",view = true)
