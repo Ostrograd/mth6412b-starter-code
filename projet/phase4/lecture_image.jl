@@ -12,7 +12,7 @@ include("tools.jl")
 
 ##############################################
 #run(`clear`) # clears the terminal screen
-function shuffled_image_to_reconstruct(tsp_file::String, nbr_of_tests::Int64 = 5)
+function shuffled_image_to_reconstruct(tsp_file::String, image_name::String, nbr_of_tests::Int64 = 5)
     graph = graph_from_tsp(tsp_file,"graphe")[1]
     println("Calculating a tour")
    
@@ -32,10 +32,10 @@ function shuffled_image_to_reconstruct(tsp_file::String, nbr_of_tests::Int64 = 5
     println("2 opt finished with cost ", sum_of_weights(two_opt_cycle_graph))
     
     
-    tour = "cat.tour"
-    write_tour("cat.tour",nodes_index_list, sum_of_weights(two_opt_cycle_graph))
+    tour = image_name * ".tour"
+    write_tour(tour,nodes_index_list, sum_of_weights(two_opt_cycle_graph))
     
-    reconstruct_picture(tour, "instances/images/shuffled/nikos-cat.png", "nikos-cat-reconstruit.png",view = true)
+    reconstruct_picture(tour, tsp_file, image_name * "-reconstruit.png",view = true)
 end
 
 # graph = graph_from_tsp("instances/tsp/instances/nikos-cat.tsp","graphe")[1]
