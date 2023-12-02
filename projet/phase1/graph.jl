@@ -1,6 +1,5 @@
 import Base.show
 
-
 """Type abstrait dont d'autres types de graphes dériveront."""
 abstract type AbstractGraph{T} end
 
@@ -40,6 +39,11 @@ function remove_node!(graph::Graph{Y,T}, node::Node{Y}) where {Y,T}
   return index
 end
 
+"""Enlever un edge au graphe à l'index i."""
+function remove_edge!(graph::Graph{Y,T}, i::Int) where {Y,T}
+  deleteat!(graph.edges, i)
+  return graph
+end
 """Donne l'index du noeud dans le graphe."""
 function index_node(graph::Graph{Y,T}, node::Node{Y}) where {Y,T}
   index = findfirst(x -> x.name == node.name, graph.nodes)
@@ -49,6 +53,12 @@ end
 """Enlever tous les arretes qui contiennent un noeud."""
 function remove_edges!(graph::Graph{Y,T}, node::Node{Y}) where {Y,T}
   graph.edges = filter(x -> x.node1.name != node.name && x.node2.name != node.name, graph.edges)
+  graph
+end
+
+"""Ajout un edge au graphe a l'index i."""
+function add_edge!(graph::Graph{Y,T}, edge::Edge{T,Y}, i::Int) where {Y,T}
+  insert!(graph.edges, i, edge)
   graph
 end
 

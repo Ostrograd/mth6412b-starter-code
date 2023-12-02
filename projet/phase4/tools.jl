@@ -1,4 +1,4 @@
-using Random, FileIO, Images, ImageView, ImageMagick
+using Random, FileIO, Images, ImageView
 
 """Compute the similarity score between two pixels."""
 function compare_pixels(p1, p2)
