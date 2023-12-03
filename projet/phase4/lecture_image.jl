@@ -12,7 +12,7 @@ include("tools.jl")
 
 ##############################################
 #run(`clear`) # clears the terminal screen
-function shuffled_image_to_reconstruct(tsp_file::String, image_name::String, nbr_of_tests::Int64 = 5)
+function shuffled_image_to_reconstruct(tsp_file::String,shuffled_image::String, new_image_name::String, nbr_of_tests::Int64 = 5)
     graph = graph_from_tsp(tsp_file,"graphe")[1]
     println("Calculating a tour")
    
@@ -32,10 +32,10 @@ function shuffled_image_to_reconstruct(tsp_file::String, image_name::String, nbr
     println("2 opt finished with cost ", sum_of_weights(two_opt_cycle_graph))
     
     
-    tour = image_name * ".tour"
+    tour = new_image_name * ".tour"
     write_tour(tour,nodes_index_list, sum_of_weights(two_opt_cycle_graph))
     
-    reconstruct_picture(tour, tsp_file, image_name * "-reconstruit.png",view = true)
+    reconstruct_picture(tour, shuffled_image, new_image_name * "-reconstruit.png",view = true)
 end
 
 # graph = graph_from_tsp("instances/tsp/instances/nikos-cat.tsp","graphe")[1]
@@ -67,9 +67,11 @@ end
 # #     nodes_index_list[i] = idx - 1
 # # end
 # minimum(nodes_index_list)
-
-# tour = "cat.tour"
+# image_name = "IMAGE"
+# tour = image_name * ".tour"
 # tour_theorique = "instances/tsp/tours/nikos-cat.tour"
-# write_tour("cat.tour",nodes_index_list, sum_of_weights(two_opt_cycle_graph))
+# write_tour(tour,nodes_index_list, sum_of_weights(two_opt_cycle_graph))
 
-# reconstruct_picture(tour, "instances/images/shuffled/nikos-cat.png", "nikos-cat-reconstruit.png",view = true)
+# reconstruct_picture(tour, "instances/images/shuffled/nikos-cat.png", image_name * "-reconstruit.png",view = true)
+
+shuffled_image_to_reconstruct("instances/tsp/instances/alaska-railroad.tsp","instances/images/shuffled/alaska-railroad.png","Train")
