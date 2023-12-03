@@ -89,7 +89,7 @@ function run_two_opt(original_graph::Graph, cycle_graph::Graph, cycle::Vector{In
     original_cost = sum_of_weights(cycle_graph)
     two_opt_cycle , best_cost= two_opt(cycle,adj_dict, original_cost, iter_stop = iter_stop)
     #println("two_opt_cycle", two_opt_cycle)
-    println("after two opt", best_cost)
+    #println("after two opt", best_cost)
     #turns the cycle into a graph
     two_opt_cycle_graph = Graph("two_opt_cycle", Node{Vector{Float64}}[],Edge{Int,Vector{Float64}}[])
     for i in 1:length(two_opt_cycle)
@@ -120,43 +120,43 @@ end
 
 
 #Fully connected graph with 7 edges
-a = Node("a",[0., 0.3])
-b = Node("b",[1.2, 0.1])
-c = Node("c",[2.,.5])
-d = Node("d",[2.1, 0.1])
-e = Node("e",[-0.1, 0.1 ])
-f = Node("f",[0.2, 0.3])
-g = Node("g",[0.1, 0.2])
-node_list = [a,b,c, d,e, f, g]
+# a = Node("a",[0., 0.3])
+# b = Node("b",[1.2, 0.1])
+# c = Node("c",[2.,.5])
+# d = Node("d",[2.1, 0.1])
+# e = Node("e",[-0.1, 0.1 ])
+# f = Node("f",[0.2, 0.3])
+# g = Node("g",[0.1, 0.2])
+# node_list = [a,b,c, d,e, f, g]
 #Edges are fully connected
-edge1 = Edge(a,b, 4.)
-edge2 = Edge(a,c, 8.)
-edge3 = Edge(a, d, 11.)
-edge4 = Edge(a, e, 8.)
-edge5 = Edge(a, f, 7.)
-edge6 = Edge(a, g, 1.)
-edge7 = Edge(b, c, 6.)
-edge8 = Edge(b, d, 2.)
-edge9 = Edge(b, e, 4.)
-edge10 = Edge(b, f, 7.)
-edge11 = Edge(b, g, 2.)
-edge12 = Edge(c, d, 7.)
-edge13 = Edge(c, e, 1.)
-edge14 = Edge(c, f, 6.)
-edge15 = Edge(c, g, 3.)
-edge16 = Edge(d, e, 5.)
-edge17 = Edge(d, f, 4.)
-edge18 = Edge(d, g, 8.)
-edge19 = Edge(e, f, 2.)
-edge20 = Edge(e, g, 7.)
-edge21 = Edge(f, g, 3.)
-edge_list = [edge1, edge2, edge3, edge4, edge5, edge6,
-                edge7, edge8, edge9, edge10, edge11,
-                edge12, edge13, edge14, edge15, edge16,
-                edge17, edge18, edge19, edge20, edge21]
-#creates the graph
-tsp_test2 = Graph("Test2",node_list,edge_list)
-adj_dict = adjacency_dict(tsp_test2)
+# edge1 = Edge(a,b, 4.)
+# edge2 = Edge(a,c, 8.)
+# edge3 = Edge(a, d, 11.)
+# edge4 = Edge(a, e, 8.)
+# edge5 = Edge(a, f, 7.)
+# edge6 = Edge(a, g, 1.)
+# edge7 = Edge(b, c, 6.)
+# edge8 = Edge(b, d, 2.)
+# edge9 = Edge(b, e, 4.)
+# edge10 = Edge(b, f, 7.)
+# edge11 = Edge(b, g, 2.)
+# edge12 = Edge(c, d, 7.)
+# edge13 = Edge(c, e, 1.)
+# edge14 = Edge(c, f, 6.)
+# edge15 = Edge(c, g, 3.)
+# edge16 = Edge(d, e, 5.)
+# edge17 = Edge(d, f, 4.)
+# edge18 = Edge(d, g, 8.)
+# edge19 = Edge(e, f, 2.)
+# edge20 = Edge(e, g, 7.)
+# edge21 = Edge(f, g, 3.)
+# edge_list = [edge1, edge2, edge3, edge4, edge5, edge6,
+#                 edge7, edge8, edge9, edge10, edge11,
+#                 edge12, edge13, edge14, edge15, edge16,
+#                 edge17, edge18, edge19, edge20, edge21]
+# #creates the graph
+# tsp_test2 = Graph("Test2",node_list,edge_list)
+# adj_dict = adjacency_dict(tsp_test2)
 #correspondance_dict = correspondance_dict_calculation(tsp_test2)
 #score, test2_graph = lkh_subgradient(deepcopy(tsp_test2), t_k_method = "1/k")
 
@@ -164,7 +164,7 @@ adj_dict = adjacency_dict(tsp_test2)
 # println("min perm", min_perm)
 # println("Par brute_force_tsp, la longueur de la tournée optimale est: ",min_dist)
 
-# cycle, nodes_list = rsl(tsp_test2, nodes(tsp_test2)[1], "Prim")
+# cycle, nodes_list = semi_optimal_rsl(tsp_test2)
 # tour_indexes = Vector{Int64}([])
 # for node in nodes_list
 #     push!(tour_indexes, index(node))
@@ -187,7 +187,7 @@ adj_dict = adjacency_dict(tsp_test2)
 #println("Current cycle")
 #show(cycle)
 # bayg29 = graph_from_tsp("instances/stsp/bayg29.tsp","graphe")[1]
-# cycle, nodes_list = rsl(bayg29, nodes(bayg29)[1], "Prim")
+# cycle, nodes_list = semi_optimal_rsl(bayg29,10)
 # tour_indexes = Vector{Int64}([])
 # for node in nodes_list
 #     push!(tour_indexes, index(node))
