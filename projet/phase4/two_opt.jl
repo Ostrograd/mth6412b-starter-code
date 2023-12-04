@@ -8,13 +8,15 @@ include("../phase3/hk.jl")
 include("../phase3/rsl.jl")
 include("tools.jl")
 using(Plots)
-#
-#Swaps two edges in a tour
+
+"""Function that swaps two edges in a tour. i.e. 1-2 and 3-4 becomes 1-3 and 2-4"""
 function two_opt_swap(tour::Vector{Int},adj_dict::Dict, i::Int, k::Int, previous_cost::Float64)
     node1 = tour[i]
+    #Checks if the node is the last one in the tour
     if i == length(tour)
         node2 = tour[1]
     else
+        #If not, the next node is the one after it
         node2 = tour[i+1]
     end
     node3 = tour[k]
@@ -23,27 +25,22 @@ function two_opt_swap(tour::Vector{Int},adj_dict::Dict, i::Int, k::Int, previous
     else
     node4 = tour[k+1]
     end
-
     new_tour = Vector{Int64}([])
     #Returns the old cycle if the two edges are adjacent
     if node1 == node3 || node1 == node4 || node2 == node3 || node2 == node4
         return tour, previous_cost
     end
+    #Creates the new tour by connecting edges 1-3 and 2-4
     for j in range(1,i)
         push!(new_tour, tour[j])
     end
+    #pushes the nodes in the reverse order so that the tour is still a cycle
     for j in range(k,i+1, step = -1)
         push!(new_tour, tour[j])
     end
     for j in range( k+1, length(tour))
         push!(new_tour, tour[j])
     end
-    # println()
-    # println("The nodes are", node1,' ', node2,' ', node3,' ', node4)
-    # println(adj_dict[node1][node2])
-    # println(adj_dict[node3][node4])
-    # println(adj_dict[node1][node3])
-    # println(adj_dict[node2][node4])
     #calculates the new tour cost
     new_cost = previous_cost - adj_dict[node1][node2] - adj_dict[node3][node4] + adj_dict[node1][node3] + adj_dict[node2][node4]
 
@@ -58,9 +55,6 @@ function find_swap(tour::Vector{Int},adj_dict::Dict, previous_cost::Float64)
             if i != k
                 new_tour,new_cost = two_opt_swap(tour,adj_dict, i, k, previous_cost)
                 if new_cost < previous_cost
-                    # println("found a swap")
-                    # println("new cost", new_cost)
-                    # println("previous cost", previous_cost)
                     return new_tour, new_cost, true
                 end
             end
@@ -88,8 +82,6 @@ function run_two_opt(original_graph::Graph, cycle_graph::Graph, cycle::Vector{In
     adj_dict = adjacency_dict(original_graph)
     original_cost = sum_of_weights(cycle_graph)
     two_opt_cycle , best_cost= two_opt(cycle,adj_dict, original_cost, iter_stop = iter_stop)
-    #println("two_opt_cycle", two_opt_cycle)
-    #println("after two opt", best_cost)
     #turns the cycle into a graph
     two_opt_cycle_graph = Graph("two_opt_cycle", Node{Vector{Float64}}[],Edge{Int,Vector{Float64}}[])
     for i in 1:length(two_opt_cycle)

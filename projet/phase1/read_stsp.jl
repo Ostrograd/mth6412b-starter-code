@@ -260,8 +260,6 @@ end
 function plot_graph(graph::Graph)
   node_list = nodes_dictionnary(graph)
   edge_list = adjacency_list(graph)
-  println("node_list", node_list)
-  println("edge_list", edge_list)
   fig = plot_graph(node_list, edge_list)
   fig
 end
