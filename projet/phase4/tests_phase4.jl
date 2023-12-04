@@ -62,3 +62,11 @@ two_opt_cycle_graph, two_opt_cycle, two_opt_cost = run_two_opt(tsp_test2,cycle, 
 @test length(two_opt_cycle) == 7
 @test length(nodes(two_opt_cycle_graph)) == 7
 @test length(edges(two_opt_cycle_graph)) == 7
+
+adj_dict = adjacency_dict(tsp_test2)
+test_cycle = [1,2,3,4,5,6,7]
+swapped_cycle, cost = two_opt_swap( test_cycle, adj_dict, 1, 4, 1000.)
+right_cost = 1000. - adj_dict[1][2] - adj_dict[4][5] + adj_dict[1][4] + adj_dict[2][5]
+right_cycle = [1,4,3,2,5,6,7]
+@test cost == right_cost
+@test swapped_cycle == right_cycle
