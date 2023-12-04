@@ -47,11 +47,13 @@ edge_list = [edge1, edge2, edge3, edge4, edge5, edge6,
                 edge17, edge18, edge19, edge20, edge21]
 #creates the graph
 tsp_test2 = Graph("Test2",node_list,edge_list)
-
+#test semi_optimal_rsl
 cycle, nodes_list = semi_optimal_rsl(tsp_test2,3)
 @test sum_of_weights(cycle) >= 17
 @test length(nodes_list) == 7
 @test length(nodes(cycle)) == 7
+
+#Test run_two_opt
 tour_indexes = Vector{Int64}([])
 for node in nodes_list
     push!(tour_indexes, index(node))
@@ -63,6 +65,7 @@ two_opt_cycle_graph, two_opt_cycle, two_opt_cost = run_two_opt(tsp_test2,cycle, 
 @test length(nodes(two_opt_cycle_graph)) == 7
 @test length(edges(two_opt_cycle_graph)) == 7
 
+#Test two_opt_swap
 adj_dict = adjacency_dict(tsp_test2)
 test_cycle = [1,2,3,4,5,6,7]
 swapped_cycle, cost = two_opt_swap( test_cycle, adj_dict, 1, 4, 1000.)
