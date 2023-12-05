@@ -121,7 +121,7 @@ function semi_optimal_rsl(start_graph::Graph{Y,T}, nbr_of_tests::Int64) where {Y
     optimal_nodes_list = []
     
     nodes_to_try = sample(1:length(nodes(start_graph)), nbr_of_tests, replace = false)
-    for method_name in ["Kruskal"]
+    for method_name in ["Prim"]
         println("Testing with ",method_name)
         
         for start_node_index in nodes_to_try
