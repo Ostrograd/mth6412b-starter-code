@@ -35,14 +35,17 @@ function read_nodes(header::Dict{String}{String}, filename::String)
   nodes = Dict{Int}{Vector{Float64}}()
   node_coord_type = header["NODE_COORD_TYPE"]
   display_data_type = header["DISPLAY_DATA_TYPE"]
-
+  file = open(filename, "r")
+  dim = parse(Int, header["DIMENSION"])
 
   if !(node_coord_type in ["TWOD_COORDS", "THREED_COORDS"]) && !(display_data_type in ["COORDS_DISPLAY", "TWOD_DISPLAY"])
+    for i in range(1,dim)
+      nodes[i] = [0,0]
+    end
     return nodes
   end
 
-  file = open(filename, "r")
-  dim = parse(Int, header["DIMENSION"])
+
   k = 0
   display_data_section = false
   node_coord_section = false
@@ -94,6 +97,7 @@ end
 function read_edges(header::Dict{String}{String}, filename::String)
 
   edges = []
+  
   edge_weight_format = header["EDGE_WEIGHT_FORMAT"]
   known_edge_weight_formats = ["FULL_MATRIX", "UPPER_ROW", "LOWER_ROW",
   "UPPER_DIAG_ROW", "LOWER_DIAG_ROW", "UPPER_COL", "LOWER_COL",
@@ -127,23 +131,29 @@ function read_edges(header::Dict{String}{String}, filename::String)
         start = 0
         while n_data > 0
           n_on_this_line = min(n_to_read, n_data)
-
+          
           for j = start : start + n_on_this_line - 1
             n_edges = n_edges + 1
+            
             if edge_weight_format in ["UPPER_ROW", "LOWER_COL"]
-              edge = (k+1, i+k+2)
+              edge = (k+1, i+k+2, parse(Int,data[j+1]))
+              
             elseif edge_weight_format in ["UPPER_DIAG_ROW", "LOWER_DIAG_COL"]
-              edge = (k+1, i+k+1)
+              edge = (k+1, i+k+1, parse(Int,data[j+1]))
+              
             elseif edge_weight_format in ["UPPER_COL", "LOWER_ROW"]
-              edge = (i+k+2, k+1)
+              edge = (i+k+2, k+1, parse(Int,data[j+1]))
             elseif edge_weight_format in ["UPPER_DIAG_COL", "LOWER_DIAG_ROW"]
-              edge = (i+1, k+1)
+              edge = (i+1, k+1, parse(Int,data[j+1]))
+              
             elseif edge_weight_format == "FULL_MATRIX"
-              edge = (k+1, i+1)
+              edge = (k+1, i+1, parse(Int,data[j+1]))
+              
             else
               warn("Unknown format - function read_edges")
             end
             push!(edges, edge)
+           
             i += 1
           end
 
@@ -201,7 +211,7 @@ function read_stsp(filename::String)
     graph_edges[k] = sort(graph_edges[k])
   end
   println("✓")
-  return graph_nodes, graph_edges
+  return graph_nodes, graph_edges, edges_brut
 end
 
 """Affiche un graphe étant données un ensemble de noeuds et d'arêtes.
